@@ -15,7 +15,6 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 trait ProductOrderTrait
 {
-
   /**
    * @param $product_order_nid
    * @param null $member_nid
@@ -27,9 +26,7 @@ trait ProductOrderTrait
     $product_order_nid,
     $member_nid = null,
     $token = null
-  ): array
-  {
-
+  ): array {
     $config = self::getConfig();
 
     $amount_suffix = $config->get('suffix');
@@ -58,11 +55,11 @@ trait ProductOrderTrait
 
     // Clean Input
     $member_nid = trim($member_nid);
-    $member_nid = (int)$member_nid;
+    $member_nid = (int) $member_nid;
 
     // Clean Input
     $product_order_nid = trim($product_order_nid);
-    $product_order_nid = (int)$product_order_nid;
+    $product_order_nid = (int) $product_order_nid;
 
     // Load Terms from Taxonomy
     $amount_list = Helper::getTermsByID('product_order_amount');
@@ -119,7 +116,6 @@ trait ProductOrderTrait
       // Token
       $variables['token'] = Helper::getFieldValue($product_order, 'smmg_token');
 
-
       $product_orders = [];
 
       // Get All product_order_unit Nids
@@ -136,7 +132,10 @@ trait ProductOrderTrait
 
         foreach ($product_order_arr as $nid) {
           $product_order_unit = Node::load($nid);
-          if ($product_order_unit && $product_order_unit->bundle() == 'product_order_item') {
+          if (
+            $product_order_unit &&
+            $product_order_unit->bundle() == 'product_order_item'
+          ) {
             $product_orders[$i]['number'] = Helper::getFieldValue(
               $product_order_unit,
               'number_of'
@@ -172,7 +171,9 @@ trait ProductOrderTrait
       $product_order_name_plural = t('product_orders');
 
       $number_suffix =
-        $product_order_total_number > 1 ? $product_order_name_plural : $product_order_name_singular;
+        $product_order_total_number > 1
+          ? $product_order_name_plural
+          : $product_order_name_singular;
 
       // Save Vars
       $variables['total']['number'] = $product_order_total_number;
@@ -188,7 +189,6 @@ trait ProductOrderTrait
         ' ' .
         $variables['address']['last_name'];
     }
-
 
     return $variables;
   }
@@ -273,20 +273,17 @@ trait ProductOrderTrait
     // debug
     dpm($data);
 
-    $order_items = $data['order_items'];
+    $order_items = $data['item'];
 
     // save product_order units
-    foreach ( $order_items as $order_item){
+    foreach ($order_items as $order_item) {
       try {
         $result = self::newProductOrderItem($order_item);
         $order_items[] = $result['nid'];
       } catch (InvalidPluginDefinitionException $e) {
       } catch (PluginNotFoundException $e) {
       }
-
-  }
-
-
+    }
 
     // Origin
     $origin = 'product_order';
@@ -304,7 +301,6 @@ trait ProductOrderTrait
     $city = $data['city'];
     $email = $data['email'];
     $phone = $data['phone'];
-
 
     $output = [
       'status' => false,
@@ -390,7 +386,7 @@ trait ProductOrderTrait
     $module = self::getModuleName();
     $templates = self::getTemplates();
 
-    Email::sendNotificationMail($module, $data, $templates);
+    // Email::sendNotificationMail($module, $data, $templates);
 
     return true;
   }
@@ -402,5 +398,148 @@ trait ProductOrderTrait
   {
     $module = self::getModuleName();
     return Drupal::config($module . '.settings');
+  }
+
+  public function getAllProductNids()
+  {
+    $products = [];
+    $query =
+      //
+      // Condition
+      \Drupal::entityQuery('node')
+        //  ->condition('status', 1)
+        ->condition('type', 'product');
+
+    // Order by
+    $query
+      ->sort('created', 'DESC')
+      ->sort('title')
+      ->accessCheck(false);
+
+    $nids = $query->execute();
+
+    if (count($nids) === 0) {
+      return false;
+    }
+    return $nids;
+  }
+
+  /**
+   * @return array
+   *
+   *
+   *
+   * -- name
+   * -- available
+   * -- category
+   * -- cover
+   * -- description
+   * -- price
+   * -- price_download
+   * -- price_shipping
+   * -- producer
+   * -- artist
+   * -- author
+   * -- copyright
+   *
+   * @throws Exception
+   */
+  public function getAllProducts(): array
+  {
+    $products = [];
+
+    $nids = $this->getAllProductNids();
+
+    if ($nids && is_array($nids)) {
+      $entity_list = Node::loadMultiple($nids);
+
+      foreach ($entity_list as $nid => $node) {
+
+        // name
+        $name = $node->getTitle();
+
+        // available
+        $field_name = 'product_available';
+        $available = Helper::getFieldValue($node, $field_name);
+
+        // category
+        $field_name = 'product_category';
+        $term_list = 'product_category';
+        $value = Helper::getFieldValue($node, $field_name, $term_list);
+        $category = $value;
+
+        // cover
+        $field_name = 'product_cover';
+        $value = Helper::getFieldValue($node, $field_name);
+        $cover = $value;
+
+        // description
+        $field_name = 'product_description';
+        $value = Helper::getFieldValue($node, $field_name);
+        $description = $value;
+
+        // price
+        $field_name = 'product_price';
+        $value = Helper::getFieldValue($node, $field_name);
+        $price = $value;
+
+        // price_download
+        $field_name = 'product_price_download';
+        $value = Helper::getFieldValue($node, $field_name);
+        $price_download = $value;
+
+        // price_shipping
+        $field_name = 'product_price_shipping';
+        $value = Helper::getFieldValue($node, $field_name);
+        $price_shipping = $value;
+
+        // producer
+        $field_name = 'product_producer';
+        $term_list = 'track_producer';
+        $value = Helper::getFieldValue($node, $field_name, $term_list);
+        $producer = $value;
+
+        // $artist
+        $field_name = 'track_artist';
+        $term_list = 'track_artist';
+        $value = Helper::getFieldValue($node, $field_name, $term_list);
+        $artist = $value;
+
+        // author
+        $field_name = 'track_author';
+        $term_list = 'track_author';
+        $value = Helper::getFieldValue($node, $field_name, $term_list);
+        $author = $value;
+
+        // copyright
+        $field_name = 'track_copyright';
+        $term_list = 'track_copyright';
+        $value = Helper::getFieldValue($node, $field_name, $term_list);
+        $copyright = $value;
+
+        // write returns
+        $products[] = [
+          'name' => $name,
+          'id' => $nid,
+          'number_of' => 0,
+          'number_of_download' => 0,
+          'available' => $available,
+          'category' => $category,
+          'cover' => $cover,
+          'description' => $description,
+          'price' => $price,
+          'price_total' => $price,
+          'price_download' => $price_download,
+          'price_download_total' => $price_download,
+          'price_shipping' => $price_shipping,
+          'producer' => $producer,
+          'artist' => $artist,
+          'author' => $author,
+          'copyright' => $copyright,
+        ];
+      }
+    }
+
+    return $products;
   }
 }

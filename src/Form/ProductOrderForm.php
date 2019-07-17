@@ -11,7 +11,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
 use Drupal\small_messages\Utility\Helper;
 use Drupal\smmg_product_order\Controller\ProductOrderController;
-use Drupal\smmg_newsletter\Controller\NewsletterController;
+use Drupal\smmg_product_order\Utility\ProductOrderTrait;
 
 /**
  * Implements OrderForm form FormBase.
@@ -32,18 +32,30 @@ class ProductOrderForm extends FormBase
   public $options_product_order_group;
   public $products;
 
+  use ProductOrderTrait;
+
+
   /**
    *  constructor.
    */
   public function __construct()
   {
     $this->number_options = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    $this->number_options = [
+      0 => 0,
+      1 => 1,
+      2 => 2,
+      3 => 3,
+      4 => 4,
+      5 => 5,
+      6 => 6,
+      7 => 7,
+      8 => 8,
+      9 => 9,
+      10 => 10];
 
     // Load Products
-    $this->products = [
-      ['name' => 'CD', 'price' => 2000, 'shipping' => 500, 'price_total' => 2000, 'id' => 769],
-      ['name' => 'Download', 'price' => 1000, 'shipping' => 0, 'price_total' => 0, 'id' => 770],
-    ];
+    $this->products = $this->getAllProducts();
 
     // Text
     $this->product_order_singular = t('product_order');
@@ -59,7 +71,6 @@ class ProductOrderForm extends FormBase
     // product_order Name from Settings
     $product_order_name_singular = $config->get('product_order_name_singular');
     $product_order_name_plural = $config->get('product_order_name_plural');
-
 
     if (!empty($product_order_name_singular)) {
       $this->product_order_singular = $product_order_name_singular;
@@ -93,13 +104,13 @@ class ProductOrderForm extends FormBase
     ]);
 
     // JS and CSS
-    $form['#attached']['library'][] = 'smmg_product_order/smmg_product_order.form';
+    $form['#attached']['library'][] =
+      'smmg_product_order/smmg_product_order.form';
 
     // Data to JS
     $form['#attached']['drupalSettings']['product_order']['numberOptions'] =
       $this->number_options;
     $form['#attached']['drupalSettings']['product_order']['products'] = $products;
-
 
     // Disable browser HTML5 validation
     $form['#attributes']['novalidate'] = 'novalidate';
@@ -117,55 +128,60 @@ class ProductOrderForm extends FormBase
     // Bestellliste
     // ==============================================
     $default_number = 0;
-    $p = 1;
 
-    $form['product_order']['table'] = [
+    $form['product_order']['item'] = [
       '#type' => 'fieldset',
       '#title' => 'Bestellliste',
       '#attributes' => ['class' => ['product_order-block']],
     ];
 
     // Table Header
-    $form['product_order']['table']['header'] = [
+    $form['product_order']['item']['header'] = [
       '#theme' => '',
       '#prefix' =>
         '<div id="product_order-table-header" class="product_order-table-header">' .
         '</div>',
     ];
 
+    $form['product_order']['item']['#tree'] = TRUE; // This is to prevent flattening the form value
+
+
     // Table Body
+    $i = 0;
     foreach ($products as $product) {
-      $number = $p === 1 ? 1 : $default_number;
+      $number = $i === 0 ? 1 : $default_number;
 
       //  Row Start
-      $form['product_order']['table']['product-' . $p]['start'] = [
+      $form['product_order']['item'][$i]['start'] = [
         '#theme' => '',
         '#prefix' =>
-          '<div id="product_order-row-' . $p . '" class="product_order-table-row">',
+          '<div id="product_order-row-' .
+          $i .
+          '" class="product_order-table-row">',
       ];
 
       // Input Number and Times
-      $form['product_order']['table']['product-' . $p]['number-' . $p] = [
+      $form['product_order']['item'][$i]['number_of'] = [
         '#type' => 'select',
         '#title' => '',
         '#options' => $this->number_options,
-        '#value' => $number,
+        '#default_value' => $number,
         '#required' => false,
-        '#prefix' => '<span class="product_order-row-number product_order-number">',
+        '#prefix' =>
+          '<span class="product_order-row-number product_order-number">',
         '#suffix' =>
           '</span>' .
           '<span class="product_order-row-times product_order-times">&times;</span>',
       ];
 
-      // Input Number and Times
-      $form['product_order']['table']['product-' . $p]['product-id-' . $p] = [
+      // Input Hidden Product id
+      $form['product_order']['item'][$i]['id'] = [
         '#type' => 'hidden',
-        '#value' => $number,
-
+        '#value' => $product['id'],
       ];
 
       // Name / Product
-      $form['product_order']['table']['product-' . $p]['product'] = [
+      $form['product_order']['item'][$i]['name'] = [
         '#theme' => '',
         '#prefix' =>
           '<span  class="product_order-row-product product_order-name">' .
@@ -174,32 +190,34 @@ class ProductOrderForm extends FormBase
       ];
 
       // Price
-      $form['product_order']['table']['product-' . $p]['price'] = [
+      $form['product_order']['item'][$i]['price'] = [
         '#theme' => '',
         '#prefix' =>
           '<span  class="product_order-row-price product_order-price">' .
-          $this->convertCents($product['price']) .
+          $product['price'] .
           '</span>',
       ];
 
       // Price total
-      $form['product_order']['table']['product-' . $p]['price-total'] = [
+      $form['product_order']['item'][$i]['price_total'] = [
         '#theme' => '',
         '#prefix' =>
-          '<span  id="product_order-row-price-total-' . +$p . '" class="product_order-row-price-total product_order-price">' .
-          $this->convertCents($product['price_total']) .
+          '<span  id="product_order-row-price-total-' .
+          +$i .
+          '" class="product_order-row-price-total product_order-price">' .
+          $product['price_total'] .
           '</span>',
       ];
 
       //  Row End
-      $form['product_order']['table']['product-' . $p]['end'] = [
+      $form['product_order']['item'][$i]['end'] = [
         '#theme' => '',
         '#suffix' => '</div>',
       ];
-      $p++;
+      $i++;
     }
     // Discount
-    $form['product_order']['table']['discount'] = [
+    $form['product_order']['item']['discount'] = [
       '#theme' => '',
       '#prefix' =>
         '<div id="product_order-row-discount" class="product_order-row-discount product_order-table-row" style="display: none">' .
@@ -212,7 +230,7 @@ class ProductOrderForm extends FormBase
     ];
 
     // Shipping
-    $form['product_order']['table']['shipping'] = [
+    $form['product_order']['item']['shipping'] = [
       '#theme' => '',
       '#prefix' =>
         '<div id="product_order-row-shipping" class="product_order-row-shipping product_order-table-row">' .
@@ -225,7 +243,7 @@ class ProductOrderForm extends FormBase
     ];
 
     // Table Total
-    $form['product_order']['table']['total'] = [
+    $form['product_order']['item']['total'] = [
       '#theme' => '',
       '#prefix' =>
         '<div id="product_order-row-total" class="product_order-row-total product_order-table-row">' .
@@ -239,7 +257,7 @@ class ProductOrderForm extends FormBase
 
     // Lieferung
     // ==============================================
-    $form['product_order']['table']['lieferung'] = [
+    $form['product_order']['item']['lieferung'] = [
       '#theme' => '',
       '#markup' =>
         '<div class="product_order-info-lieferung product_order-info">' .
@@ -287,12 +305,7 @@ class ProductOrderForm extends FormBase
 
     // Load Taxonomy
     $vid = 'gender';
-    $terms = Drupal::entityTypeManager()
-      ->getStorage('taxonomy_term')
-      ->loadTree($vid);
-    foreach ($terms as $term) {
-      $gender_options[$term->tid] = $term->name;
-    }
+    $gender_options = Helper::getTermsByID($vid);
 
     // Gender Input
     $form['product_order']['postal_address']['gender'] = [
@@ -422,7 +435,7 @@ class ProductOrderForm extends FormBase
     $city = $values['city'];
     $email = $values['email'];
 
-    // TODO check email if download chosen
+    // TODO check email if download is chosen
 
     // Address
 
@@ -495,8 +508,6 @@ class ProductOrderForm extends FormBase
     $values = $form_state->getValues();
 
     // generate Order Item Array
-    $values['order_items'] = $this->buildOrderItems($values);
-
 
     // Token
     $token = $values['token'];
@@ -524,19 +535,14 @@ class ProductOrderForm extends FormBase
     }
   }
 
+  /**
+   * @param $cents
+   * @return string
+   */
   public function convertCents($cents)
   {
     return number_format($cents / 100, 2, '.', ' ');
   }
 
-  private function buildOrderItems(array $values): array
-  {
-    dpm($values);
-    $order_items = [];
 
-    $order_items[] = ['Name' => 'Test Produkt 1', 'id' => 769, 'number_of' => 10, 'price' => 11];
-    $order_items[] = ['Name' => 'Test Produkt 2', 'id' => 770, 'number_of' => 20, 'price' => 22];
-
-    return $order_items;
-  }
 }
