@@ -7,7 +7,7 @@
       <span class="product_order-table-number">Number</span>
       <span class="product_order-table-times"></span>
       <span class="product_order-table-amount">Amount</span>
-      <span class="product_order-table-unit"></span>
+      <span class="product_order-table-item"></span>
     </div>
 
     {% for product_order in product_orders %}
@@ -16,7 +16,7 @@
         <span class="product_order-table-number">{{ product_order.number }}</span>
         <span class="product_order-table-times">&times;</span>
         <span class="product_order-table-amount">{{ product_order.amount }}</span>
-        <span class="product_order-table-unit">{{ amount_suffix }}</span>
+        <span class="product_order-table-item">{{ amount_suffix }}</span>
       </div>
 
     {% endfor %}
@@ -26,7 +26,7 @@
       <span class="product_order-table-total-number">{{ total.number }}</span>
       <span class="product_order-table-total-number-label">{{ number_suffix }}</span>
       <span class="product_order-table-total-amount">{{ total.amount }}</span>
-      <span class="product_order-table-total-unit">{{ amount_suffix }}</span>
+      <span class="product_order-table-total-item">{{ amount_suffix }}</span>
     </div>
   </div>
 

@@ -84,7 +84,7 @@ function smmg_product_order_inline_entity_form_table_fields_alter(&$fields, $con
 
     foreach ($context ['allowed_bundles'] as $bundle) {
 
-        if ($bundle == 'product_order_unit') {
+        if ($bundle == 'product_order_item') {
             $product_order_unit = TRUE;
         }
     }
@@ -99,16 +99,16 @@ function smmg_product_order_inline_entity_form_table_fields_alter(&$fields, $con
         // Add product_order Fields
 
         // product_order Number
-        $fields['field_product_order_number'] = [
+        $fields['field_product_order_number_of'] = [
             'type' => 'field',
             'label' => t('Number'),
             'weight' => 100
         ];
 
         //  product_order Amount
-        $fields['field_product_order_amount'] = [
+        $fields['field_product'] = [
             'type' => 'field',
-            'label' => t('Amount'),
+            'label' => t('Product'),
             'weight' => 101,
             'display_options' => [
                 'type' => 'entity_reference_label',
@@ -173,7 +173,7 @@ function smmg_product_order_mail($key, &$message, $params)
  */
 function smmg_product_order_node_access(NodeInterface $node, $op, AccountInterface $account)
 {
-    $restricted_bundles = ['product_order', 'product_order_unit'];
+    $restricted_bundles = ['product_order', 'product_order_item'];
     $role_id = 'smmg_product_order';
 
     $bundle_id = $node->bundle();

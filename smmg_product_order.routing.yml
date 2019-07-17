@@ -21,7 +21,7 @@ smmg_product_order.order_list:
 # product_order - Form
 #
 smmg_product_order.product_order:
-  path: 'cd'
+  path: 'products'
   defaults:
     _form: '\Drupal\smmg_product_order\Form\ProductOrderForm'
     _title: 'Order Albums'

@@ -72,7 +72,7 @@ trait ProductOrderTrait
     // ==============================================
     $product_order = Node::load($product_order_nid);
 
-    if ($product_order && $product_order->bundle() == 'product_order') {
+    if ($product_order && $product_order->bundle() === 'product_order') {
       // check token
       $node_token = Helper::getFieldValue($product_order, 'smmg_token');
 
@@ -120,13 +120,12 @@ trait ProductOrderTrait
       $variables['token'] = Helper::getFieldValue($product_order, 'smmg_token');
 
 
-
       $product_orders = [];
 
       // Get All product_order_unit Nids
       $product_order_arr = Helper::getFieldValue(
         $product_order,
-        'product_order_unit',
+        'order_item',
         null,
         true
       );
@@ -137,14 +136,14 @@ trait ProductOrderTrait
 
         foreach ($product_order_arr as $nid) {
           $product_order_unit = Node::load($nid);
-          if ($product_order_unit && $product_order_unit->bundle() == 'product_order_unit') {
+          if ($product_order_unit && $product_order_unit->bundle() == 'product_order_item') {
             $product_orders[$i]['number'] = Helper::getFieldValue(
               $product_order_unit,
-              'product_order_number'
+              'number_of'
             );
             $product_orders[$i]['product'] = Helper::getFieldValue(
               $product_order_unit,
-              'product_order_amount',
+              'product',
               $amount_list
             );
 
@@ -184,26 +183,12 @@ trait ProductOrderTrait
 
       // Title
       $variables['title'] =
-        $name_singular .
         ' - ' .
         $variables['address']['first_name'] .
         ' ' .
         $variables['address']['last_name'];
     }
 
-    // Member & Newsletter
-    // ==============================================
-    if ($member_nid) {
-      $member = Node::load($member_nid);
-
-      if ($member && $member->bundle() == 'member') {
-        // Newsletter
-        $variables['newsletter'] = Helper::getFieldValue(
-          $member,
-          'smmg_accept_newsletter'
-        );
-      }
-    }
 
     return $variables;
   }
@@ -217,17 +202,17 @@ trait ProductOrderTrait
   {
     $data = self::productOrderVariables($nid, $token);
 
-    self::sendproduct_orderMail($data);
+    self::sendProductOrderMail($data);
   }
 
   /**
    * @param $number
-   * @param $amount
+   * @param $order_item
    * @return array
    * @throws InvalidPluginDefinitionException
    * @throws PluginNotFoundException
    */
-  public static function newProductUnit($number, $amount): array
+  public static function newProductOrderItem($order_item): array
   {
     $config = self::getConfig();
 
@@ -239,17 +224,22 @@ trait ProductOrderTrait
     ];
     $suffix = $config->get('suffix');
 
-    $amount_list = Helper::getTermsByID('product_order_amount');
-    $title = $number . ' × ' . $amount_list[$amount] . ' ' . $suffix;
+    $item_name = $order_item['name'];
+    $item_nid = $order_item['id'];
+    $item_number_of = $order_item['number_of'];
+    $item_price = $order_item['price'];
+
+    $title = $item_number_of . ' × ' . $item_name . ' ' . $suffix;
     $node = Drupal::entityTypeManager()
       ->getStorage('node')
       ->create([
-        'type' => 'product_order_unit',
+        'type' => 'product_order_item',
         'status' => 0, //(1 or 0): published or not
         'promote' => 0, //(1 or 0): promoted to front page
         'title' => $title,
-        'field_product_order_number' => $number,
-        'field_product_order_amount' => $amount,
+        'field_number_of' => $item_number_of,
+        'field_product' => $item_nid,
+        'field_price_in_cent' => $item_price,
       ]);
 
     // Save
@@ -280,27 +270,23 @@ trait ProductOrderTrait
   {
     $config = self::getConfig();
 
-    $product_orders = [];
-
     // debug
     dpm($data);
 
-
+    $order_items = $data['order_items'];
 
     // save product_order units
-    for ($i = 0; $i < 2; $i++) {
-      $number = $data['product_orders']['product-' . $i]['number'];
-      $amount = $data['product_orders']['product-' . $i]['product'];
-
-      if ($number > 0) {
-        try {
-        //  $result = self::newProductUnit($number, $amount);
-        //  $product_orders[$i] = $result['nid'];
-        } catch (InvalidPluginDefinitionException $e) {
-        } catch (PluginNotFoundException $e) {
-        }
+    foreach ( $order_items as $order_item){
+      try {
+        $result = self::newProductOrderItem($order_item);
+        $order_items[] = $result['nid'];
+      } catch (InvalidPluginDefinitionException $e) {
+      } catch (PluginNotFoundException $e) {
       }
-    }
+
+  }
+
+
 
     // Origin
     $origin = 'product_order';
@@ -318,7 +304,6 @@ trait ProductOrderTrait
     $city = $data['city'];
     $email = $data['email'];
     $phone = $data['phone'];
-    $product_order_group = $data['product_order_group'];
 
 
     $output = [
@@ -352,7 +337,7 @@ trait ProductOrderTrait
     ]);
 
     // product_order
-    $new_order->get('field_product_unit')->setValue($product_orders);
+    $new_order->get('field_order_item')->setValue($order_items);
 
     // Save
     try {
@@ -361,7 +346,7 @@ trait ProductOrderTrait
 
       // if OK
       if ($new_order_nid) {
-        $message = t('product_order Order successfully saved');
+        $message = t('Order successfully saved');
         $output['message'] = $message;
         $output['status'] = true;
         $output['nid'] = $new_order_nid;
@@ -400,7 +385,7 @@ trait ProductOrderTrait
    * @param $templates
    * @return bool
    */
-  public static function sendproduct_orderMail($data): bool
+  public static function sendProductOrderMail($data): bool
   {
     $module = self::getModuleName();
     $templates = self::getTemplates();

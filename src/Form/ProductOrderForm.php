@@ -41,8 +41,8 @@ class ProductOrderForm extends FormBase
 
     // Load Products
     $this->products = [
-      ['name' => 'CD', 'price' => 2000, 'shipping' => 500, 'price_total' => 2000],
-      ['name' => 'Download', 'price' => 1000, 'shipping' => 0, 'price_total' => 0],
+      ['name' => 'CD', 'price' => 2000, 'shipping' => 500, 'price_total' => 2000, 'id' => 769],
+      ['name' => 'Download', 'price' => 1000, 'shipping' => 0, 'price_total' => 0, 'id' => 770],
     ];
 
     // Text
@@ -145,7 +145,7 @@ class ProductOrderForm extends FormBase
       ];
 
       // Input Number and Times
-      $form['product_order']['table']['product-' . $p]['number'] = [
+      $form['product_order']['table']['product-' . $p]['number-' . $p] = [
         '#type' => 'select',
         '#title' => '',
         '#options' => $this->number_options,
@@ -155,6 +155,13 @@ class ProductOrderForm extends FormBase
         '#suffix' =>
           '</span>' .
           '<span class="product_order-row-times product_order-times">&times;</span>',
+      ];
+
+      // Input Number and Times
+      $form['product_order']['table']['product-' . $p]['product-id-' . $p] = [
+        '#type' => 'hidden',
+        '#value' => $number,
+
       ];
 
       // Name / Product
@@ -487,6 +494,10 @@ class ProductOrderForm extends FormBase
   {
     $values = $form_state->getValues();
 
+    // generate Order Item Array
+    $values['order_items'] = $this->buildOrderItems($values);
+
+
     // Token
     $token = $values['token'];
     $arg = ['token' => $token];
@@ -497,7 +508,7 @@ class ProductOrderForm extends FormBase
 
       if ($result) {
         if ($result['status']) {
-          $arg['product_order_order_nid'] = (int)$result['nid'];
+          $arg['product_order_nid'] = (int)$result['nid'];
         } else {
           // Error on create new product_order Order
           if ($result['message']) {
@@ -516,5 +527,16 @@ class ProductOrderForm extends FormBase
   public function convertCents($cents)
   {
     return number_format($cents / 100, 2, '.', ' ');
+  }
+
+  private function buildOrderItems(array $values): array
+  {
+    dpm($values);
+    $order_items = [];
+
+    $order_items[] = ['Name' => 'Test Produkt 1', 'id' => 769, 'number_of' => 10, 'price' => 11];
+    $order_items[] = ['Name' => 'Test Produkt 2', 'id' => 770, 'number_of' => 20, 'price' => 22];
+
+    return $order_items;
   }
 }

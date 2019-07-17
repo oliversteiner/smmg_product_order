@@ -1,4 +1,4 @@
-name: 'Small Messages - CD Orders'
+name: 'Small Messages - Product Orders'
 type: module
 description: 'product_order Plugin for Small Messages'
 core: 8.x
