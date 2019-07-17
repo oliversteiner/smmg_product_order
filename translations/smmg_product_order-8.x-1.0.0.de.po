@@ -1,0 +1,160 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2019-01-05 15:36+0100\n"
+"PO-Revision-Date: 2019-01-06 00:34+0100\n"
+"Last-Translator: Oliver Steiner <oliver@mollo.ch>\n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.2\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-KeywordsList: t\n"
+"X-Poedit-SearchPath-0: src\n"
+"X-Poedit-SearchPath-1: templates\n"
+"X-Poedit-SearchPath-2: assets\n"
+
+#: src/Form/product_orderForm.php:45 src/Utility/product_orderTrait.php:127
+msgid "product_order"
+msgstr "Gutschein"
+
+#: src/Form/product_orderForm.php:46 src/Utility/product_orderTrait.php:128
+msgid "product_orders"
+msgstr "Gutscheine"
+
+#: src/Form/product_orderForm.php:47
+msgid "Add another product_order"
+msgstr "Einen weiteren Gutschein hinzufügen"
+
+#: src/Form/product_orderForm.php:48
+msgid "Total"
+msgstr "Gesamt"
+
+#: src/Form/product_orderForm.php:49
+msgid "Number"
+msgstr "Nummer"
+
+#: src/Form/product_orderForm.php:50
+msgid "Amount"
+msgstr "Betrag"
+
+#: src/Form/product_orderForm.php:235
+msgid "Address"
+msgstr "Adresse"
+
+#: src/Form/product_orderForm.php:240
+msgid "Please Chose"
+msgstr "Bitte wählen"
+
+#: src/Form/product_orderForm.php:254 src/Form/product_orderForm.php:425
+msgid "Gender"
+msgstr "Anrede"
+
+#: src/Form/product_orderForm.php:265 src/Form/product_orderForm.php:433
+msgid "First Name"
+msgstr "Vorname"
+
+#: src/Form/product_orderForm.php:277 src/Form/product_orderForm.php:441
+msgid "Last Name"
+msgstr "Nachname"
+
+#: src/Form/product_orderForm.php:288 src/Form/product_orderForm.php:449
+msgid "Street and Number"
+msgstr "Strasse und Anzahl"
+
+#: src/Form/product_orderForm.php:299 src/Form/product_orderForm.php:457
+msgid "ZIP"
+msgstr "PLZ"
+
+#: src/Form/product_orderForm.php:309 src/Form/product_orderForm.php:465
+msgid "City"
+msgstr "Ort"
+
+#: src/Form/product_orderForm.php:320
+msgid "Email"
+msgstr "E-Mail"
+
+#: src/Form/product_orderForm.php:331
+msgid "Phone"
+msgstr "Telefon"
+
+#: src/Form/product_orderForm.php:345
+msgid "I would like to receive the newsletter."
+msgstr "Ich möchte den Newsletter erhalten."
+
+#: src/Form/product_orderForm.php:369
+msgid "Order product_orders"
+msgstr "Gutscheinbestellung"
+
+#: src/Form/product_orderForm.php:407
+msgid "An email address is required."
+msgstr "Eine E-Mail-Adresse ist erforderlich."
+
+#: src/Form/product_orderForm.php:416
+msgid "Something is wrong with this email address."
+msgstr "Mit dieser E-Mail-Adresse stimmt etwas nicht."
+
+#: src/Form/product_orderForm.php:428 src/Form/product_orderForm.php:436
+#: src/Form/product_orderForm.php:444 src/Form/product_orderForm.php:452
+#: src/Form/product_orderForm.php:460 src/Form/product_orderForm.php:468
+msgid "Please fill in the field \"@field\""
+msgstr "Bitte füllen Sie das Feld \"@field\" aus"
+
+#: src/Form/product_orderSettingsForm.php:73
+msgid "General"
+msgstr "Allgemein"
+
+#: src/Form/product_orderSettingsForm.php:80
+msgid "suffix (USD, EUR, SFr)"
+msgstr "Währung (USD, EUR, SFr)"
+
+#: src/Form/product_orderSettingsForm.php:87
+msgid "product_order Name Singular"
+msgstr "Gutschein Name Singular"
+
+#: src/Form/product_orderSettingsForm.php:94
+msgid "product_order Name Plural"
+msgstr "Gutschein-Name Plural"
+
+#: src/Form/product_orderSettingsForm.php:102
+msgid "Email Settings"
+msgstr "E-Mail Einstellungen"
+
+#: src/Form/product_orderSettingsForm.php:109
+msgid "Email: From (newsletter@example.com)"
+msgstr "Email: Von (newsletter@example.com)"
+
+#: src/Form/product_orderSettingsForm.php:116
+msgid "Email: to (sale@example.com, info@example.com)"
+msgstr "Email: An (sale@example.com, info@example.com)"
+
+#: src/Form/product_orderSettingsForm.php:123
+msgid "Testmode: Don't send email to Subscriber"
+msgstr "Testmodus: Es werden keine E-Mails an Abonnenten versendet"
+
+#: src/Form/product_orderSettingsForm.php:132 src/Form/product_orderSettingsForm.php:158
+msgid "Templates"
+msgstr "Vorlagen"
+
+#: src/Form/product_orderSettingsForm.php:138
+msgid "Path of Templates"
+msgstr "Vorlagen Verzeichnis"
+
+#: src/Form/product_orderSettingsForm.php:145
+msgid "Module or Theme"
+msgstr "Modul oder Theme"
+
+#: src/Form/product_orderSettingsForm.php:152
+msgid "Name of Module or Theme"
+msgstr "Name des Moduls oder des Themes"
+
+#: src/Utility/product_orderTrait.php:211
+msgid "Information successfully saved"
+msgstr "Informationen gespeichert"
+
+#: src/Utility/product_orderTrait.php:307
+msgid "product_order Order successfully saved"
+msgstr "Gutscheinbestellung erfolgreich"

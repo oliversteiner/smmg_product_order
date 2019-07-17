@@ -1,0 +1,106 @@
+.product_order-block {
+  border: none;
+  max-width: 350px;
+}
+
+.product_order-table-row {
+  display: flex;
+}
+
+.product_order-table-row span {
+  padding: 5px 5px;
+}
+
+.product_order-table-header {
+  border-top: 1px solid silver;
+}
+
+.product_order-number {
+  min-width: 50px;
+  text-align: right;
+}
+.product_order-number .form-item {
+  margin: 0;
+}
+
+.product_order-times {
+  color: silver;
+  width: 20px;
+  text-align: center;
+}
+
+.product_order-name {
+  min-width: 100px;
+  max-width: 120px;
+  text-align: left;
+}
+
+.product_order-price {
+  min-width: 50px;
+  text-align: right;
+}
+
+.product_order-currency {
+  color: silver;
+}
+
+.product_order-row-shipping {
+  border-top: 1px solid silver;
+}
+
+.product_order-row-total {
+  border-bottom: 3px solid silver;
+  font-weight: bold;
+}
+
+.product_order-info-lieferung {
+  margin-top: 10px;
+}
+
+.product_order-info {
+  font-style: italic;
+  color: grey;
+}
+
+.product_order-info-text h3 {
+  font-weight: bold;
+  margin: 1em 0 0 0;
+}
+
+.form-check label {
+  display: inline;
+  cursor: pointer;
+}
+
+.form-group-zip-city {
+  display: flex;
+  align-content: space-between;
+}
+
+.form-item-zip-code {
+  display: inline-block;
+  padding-right: 2px;
+}
+
+.form-item-city {
+  flex: auto;
+  padding-left: 2px;
+}
+
+.product_order-receipt address {
+  padding-left: 5px;
+  color: black;
+}
+.product_order-receipt address i,
+.product_order-receipt address svg {
+  color: grey;
+  margin-right: 5px;
+}
+.product_order-receipt address .address-name {
+  font-weight: bold;
+}
+.product_order-receipt address .address-city {
+  margin-bottom: 15px;
+}
+
+/*# sourceMappingURL=smmg_product_order.css.map */

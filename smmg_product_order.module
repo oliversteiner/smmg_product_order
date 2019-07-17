@@ -1,0 +1,263 @@
+<?php
+
+/**
+ * @file
+ * Contains smmg_product_order.module.
+ */
+
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\node\NodeInterface;
+use Drupal\small_messages\Utility\Helper;
+
+/**
+ * Implements hook_help().
+ */
+function smmg_product_order_help($route_name, RouteMatchInterface $route_match)
+{
+    switch ($route_name) {
+        // Main module help for the smmg_product_order module.
+        case 'help.page.smmg_product_order':
+            $output = '';
+            $output .= '<h3>' . t('About') . '</h3>';
+            $output .= '<p>' . t('product_order Module for Small Messages') . '</p>';
+            return $output;
+
+        default:
+    }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function smmg_product_order_theme()
+{
+    return [
+        'smmg_product_order' => [
+            'render element' => 'children',
+        ],
+    ];
+}
+
+
+/**
+ * Implements hook_form_alter().
+ */
+function smmg_product_order_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id)
+{
+
+    // product_order Order
+    // --------------------------------------
+    if (in_array($form_id, ['node_product_order_edit_form', 'node_product_order_form'])) {
+
+
+        // if Token field empty fill in automaticaly
+        $token = Helper::generateToken();
+        $form['field_smmg_token']['widget'][0]['value']['#default_value'] = $token;
+
+        // Automatic Fill Title Field
+        $form['title']['#access'] = FALSE;
+        $form['#entity_builders'][] = 'custom_product_order_node_title_builder';
+    }
+
+    // product_order Unit
+    // --------------------------------------
+    if (in_array($form_id, ['node_product_order_unit_edit_form', 'node_product_order_unit_form'])) {
+
+
+        // Automatic Fill Title Field
+        $form['title']['#access'] = FALSE;
+        $form['#entity_builders'][] = 'product_order_unit_title_builder';
+    }
+}
+
+
+/**
+ * Implements hook_inline_entity_form_table_fields_alter().
+ */
+function smmg_product_order_inline_entity_form_table_fields_alter(&$fields, $context)
+{
+
+    $product_order_unit = false;
+
+    foreach ($context ['allowed_bundles'] as $bundle) {
+
+        if ($bundle == 'product_order_unit') {
+            $product_order_unit = TRUE;
+        }
+    }
+
+    if ($product_order_unit) {
+
+        // This line removes the title field. you're looking to do this, just with the status instead of title field
+        unset($fields['title']);
+        unset($fields['label']);
+        unset($fields['status']);
+
+        // Add product_order Fields
+
+        // product_order Number
+        $fields['field_product_order_number'] = [
+            'type' => 'field',
+            'label' => t('Number'),
+            'weight' => 100
+        ];
+
+        //  product_order Amount
+        $fields['field_product_order_amount'] = [
+            'type' => 'field',
+            'label' => t('Amount'),
+            'weight' => 101,
+            'display_options' => [
+                'type' => 'entity_reference_label',
+                'settings' => ['link' => FALSE],
+            ],
+        ];
+    }
+
+
+}
+
+
+/**
+ * Implements hook_mail().
+ * @param $key
+ * @param $message
+ * @param $params
+ */
+function smmg_product_order_mail($key, &$message, $params)
+{
+
+    switch ($key) {
+
+
+        case 'EMAIL_PLAIN':
+
+            $message['from'] = $params['from'];
+            $message['subject'] = $params['title'];
+            $message['body'][] = $params['message_plain'];
+            break;
+
+
+        case 'EMAIL_SMTP' :
+
+            $message['from'] = $params['from'];
+            $message['subject'] = $params['title'];
+            $message['headers'] = [
+                'MIME-Version' => '1.0',
+                'Content-Type' => "multipart/alternative",
+                'Content-Transfer-Encoding' => '8Bit',
+                'X-Mailer' => 'Drupal',
+            ];
+            $message['body'][] = "\r\n--\r\n";
+            $message['body'][] = 'Content-Type: text/plain; charset=utf-8;';
+            $message['body'][] = $params['message_plain'];
+            $message['body'][] = "\r\n--\r\n";
+            $message['body'][] = "Content-Type: text/html; charset=utf-8;";
+            $message['body'][] = $params['message_html'];
+            $message['body'][] = "\r\n-- --\r\n";
+            break;
+    }
+
+}
+
+/**
+ * Implements hook_node_access().
+ *
+ * @param NodeInterface $node
+ * @param $op
+ * @param AccountInterface $account
+ * @return mixed
+ */
+function smmg_product_order_node_access(NodeInterface $node, $op, AccountInterface $account)
+{
+    $restricted_bundles = ['product_order', 'product_order_unit'];
+    $role_id = 'smmg_product_order';
+
+    $bundle_id = $node->bundle();
+    $roles = $account->getRoles();
+
+    // Default checks
+    if (!is_object($node)) {
+        return AccessResult::neutral();
+    } else {
+
+        // block http://example.com/node/123
+        $parameter_node = \Drupal::routeMatch()->getRawParameter('node');
+
+        if ($op == 'view' && $parameter_node == $node->id() && in_array($bundle_id, $restricted_bundles) ) {
+
+            // Allow for admin roles
+            if (in_array($bundle_id, $restricted_bundles) && in_array($role_id, $roles)) {
+                return AccessResult::neutral();
+
+            } else {
+                // Restrict access to full node for others
+                return AccessResult::forbidden();
+            }
+        }
+    }
+
+    // Default
+    return AccessResult::neutral();
+}
+
+
+/**
+ * Title builder for product_order content type.
+ *
+ * @param $entity_type
+ * @param \Drupal\node\NodeInterface $node
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * @throws Exception
+ */
+function smmg_product_order_node_title_builder($entity_type, NodeInterface $node, $form, FormStateInterface $form_state)
+{
+    $config = \Drupal::config('smmg_product_order.settings');
+    $product_order_name = $config->get('product_order_name_singular');
+
+    $first_name = '';
+    $last_name = '';
+
+    if (!empty($node)) {
+        $first_name = Helper::getFieldValue($node, 'first_name');
+        $last_name = Helper::getFieldValue($node, 'last_name');
+    }
+
+
+
+// Build Title
+    $node->setTitle($product_order_name . ' - ' . $first_name . ' ' . $last_name);
+}
+
+/**
+ * Title builder for product_order content type.
+ *
+ * @param $entity_type
+ * @param \Drupal\node\NodeInterface $node
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ */
+function product_order_unit_title_builder($entity_type, NodeInterface $node, $form, FormStateInterface $form_state)
+{
+    $node->setTitle('product_order Unit');
+    $amount_list = Helper::getTermsByID('product_order_amount');
+
+    $config = \Drupal::config('smmg_product_order.settings');
+    $suffix = $config->get('suffix');
+
+    $number = '';
+    $amount = '';
+
+    if (!empty($node)) {
+        $number = Helper::getFieldValue($node, 'product_order_number');
+        $amount = Helper::getFieldValue($node, 'product_order_amount', $amount_list);
+    }
+
+
+// Build Title
+    $node->setTitle($number . ' × ' . $amount . ' ' . $suffix);
+}

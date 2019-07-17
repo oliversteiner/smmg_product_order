@@ -1,0 +1,37 @@
+{% if sandbox %}<pre>{% endif %}
+
+Delivery Address
+-------------------------------------------
+    {{ address.gender }}
+    {{ address.first_name }} {{ address.last_name }}
+    {{ address.street_and_number }}
+    {{ address.zip_code }} {{ address.city }}
+
+    {{ address.email }}
+    {{ address.phone }}
+
+
+product_orders
+-------------------------------------------
+{% for product_order in product_orders %}
+{% if not loop.last %}
+    {{ product_order.number }} x {{ product_order.amount }} {{ amount_suffix }}
+{% else %}
+    {{ product_order.number }} x {{ product_order.amount }} {{ amount_suffix }}
+{% endif %}
+{% endfor %}
+-------------------------------------------
+    Total:     {{ total.number }} {{ number_suffix }} {{ total.amount }} {{ amount_suffix }}
+-------------------------------------------
+
+
+Feelgood Inc.
+-------------------------------------------
+    Post office box
+    5103 New York
+    info@example.com
+
+
+Billing Information
+-------------------------------------------
+{% if sandbox %}</pre>{% endif %}

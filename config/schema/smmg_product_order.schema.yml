@@ -1,0 +1,9 @@
+# Schema for the configuration files of the Small Message product_order module.
+#
+smmg_product_order.settings:
+  type: config_object
+  label: 'product_order Settings'
+  mapping:
+    message:
+      type: text
+      label: 'Message'

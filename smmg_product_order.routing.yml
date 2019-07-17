@@ -1,0 +1,82 @@
+
+# Settings
+# ---------------------------------
+#
+smmg_product_order.settings:
+  path: '/admin/config/small_messages/smmg_product_order'
+  defaults:
+    _form: '\Drupal\smmg_product_order\Form\ProductOrderSettingsForm'
+    _title: 'product_order Settings'
+  requirements:
+    _permission: 'administer site configuration'
+
+smmg_product_order.order_list:
+  path: '/admin/product_order-order-list'
+  requirements:
+    _permission: 'access content'
+
+# product_order
+# ---------------------------------
+#
+# product_order - Form
+#
+smmg_product_order.product_order:
+  path: 'cd'
+  defaults:
+    _form: '\Drupal\smmg_product_order\Form\ProductOrderForm'
+    _title: 'Order Albums'
+  requirements:
+    _permission: 'access content'
+#
+# product_order - Thank You
+#
+smmg_product_order.product_order.thanks:
+  path: 'product_order/thank-you/{product_order_nid}/{token}/{member_nid}'
+  defaults:
+    _controller: '\Drupal\smmg_product_order\Controller\ProductOrderController::thankYouPage'
+    _title: 'Thank You.'
+    product_order_nid: null
+    token: null
+    member_nid: null
+  requirements:
+    _permission: 'access content'
+#
+# product_order - Email Sandbox // 1594
+#
+smmg_product_order.product_order_sandbox_email:
+  path: 'product_order/sandbox/{product_order_nid}/{token}/{output_mode}'
+  defaults:
+    _controller: '\Drupal\smmg_product_order\Controller\ProductOrderController::sandboxEmail'
+    _title: 'product_order Email Test'
+    product_order_nid: null
+    token: null
+    output_mode: 'html'
+  requirements:
+    _permission: 'access content'
+
+
+#
+# product_order - Email Sandbox // 1594
+#
+smmg_product_order.product_order_sandbox_send_email:
+  path: 'product_order/send/{product_order_nid}/{token}'
+  defaults:
+    _controller: '\Drupal\smmg_product_order\Controller\ProductOrderController::sandboxSendEmail'
+    _title: 'product_order Email Test'
+    product_order_nid: null
+    token: null
+  requirements:
+    _permission: 'access content'
+
+#
+# product_order - Send Thank You Email
+#
+smmg_product_order.product_order_send_email:
+  path: 'product_order/send/{product_order_nid}/{token}'
+  defaults:
+    _controller: '\Drupal\smmg_product_order\Controller\ProductOrderController::sendEmail'
+    _title: 'product_order Email'
+    product_order_nid: null
+    token: null
+  requirements:
+    _permission: 'access content'

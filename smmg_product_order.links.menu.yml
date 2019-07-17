@@ -1,0 +1,20 @@
+#
+# Setting Page
+#
+smmg_product_order.settings_form:
+  title: 'product_order Settings'
+  description: 'Configure default product_order settings'
+  route_name: smmg_product_order.settings
+  parent:  small_messages.group.admin
+  weight: 30
+
+#
+# Content > product_orders
+#
+#
+smmg_product_order.admin_product_orders:
+  title: 'product_order Orders'
+  description: 'Show all product_order Orders'
+  route_name: smmg_product_order.order_list
+  parent: 'system.admin_content'
+  weight: 80

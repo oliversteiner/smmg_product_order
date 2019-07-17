@@ -1,0 +1,14 @@
+{
+  "name": "drupal/smmg_product_order",
+  "type": "drupal-module",
+  "description": "product_order Module for Small Messages",
+  "keywords": ["Drupal"],
+  "license": "GPL-3.0+",
+  "homepage": "https://github.com/oliversteiner/smmg_product_order",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://github.com/oliversteiner/smmg_product_order/issues",
+    "source": "https://github.com/oliversteiner/smmg_product_order"
+  },
+  "require": { }
+}

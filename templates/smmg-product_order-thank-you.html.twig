@@ -1,0 +1,59 @@
+<div class="product_order-receipt ">
+
+  <div class="product_order-list">
+    <h2>Order</h2>
+
+    <div id="product_order-table-header" class="product_order-table-header">
+      <span class="product_order-table-number">Number</span>
+      <span class="product_order-table-times"></span>
+      <span class="product_order-table-amount">Amount</span>
+      <span class="product_order-table-unit"></span>
+    </div>
+
+    {% for product_order in product_orders %}
+
+      <div class="product_order-table-row-receipt">
+        <span class="product_order-table-number">{{ product_order.number }}</span>
+        <span class="product_order-table-times">&times;</span>
+        <span class="product_order-table-amount">{{ product_order.amount }}</span>
+        <span class="product_order-table-unit">{{ amount_suffix }}</span>
+      </div>
+
+    {% endfor %}
+
+    <div id="product_order-table-total" class="product_order-table-total product_order-table-total-receipt">
+      <span class="product_order-table-total-total">Total:</span>
+      <span class="product_order-table-total-number">{{ total.number }}</span>
+      <span class="product_order-table-total-number-label">{{ number_suffix }}</span>
+      <span class="product_order-table-total-amount">{{ total.amount }}</span>
+      <span class="product_order-table-total-unit">{{ amount_suffix }}</span>
+    </div>
+  </div>
+
+
+  <div class="product_order-address">
+    <h2>Delivery Address</h2>
+
+    <address>
+      <div class="address-gender">{{ address.gender }}</div>
+      <div class="address-name">{{ address.first_name }} {{ address.last_name }}</div>
+
+      <div class="address-street">{{ address.street_and_number }}</div>
+      <div class="address-city">{{ address.zip_code }}  {{ address.city }}</div>
+
+      <div class="address-email"><i class="fas fa-envelope"></i> {{ address.email }}</div>
+      <div class="address-phone"><i class="fas fa-phone"></i> {{ address.phone }}</div>
+
+    </address>
+  </div>
+  <div class="product_order-info">
+    <p>Thank you very much for your order.</p>
+  </div>
+
+  <div class="product_order-info">
+    <a href="{{ path('smmg_product_order.product_order_send_email', {'product_order_nid': id,  'token': token}) }}"
+            role="button">Send email again
+    </a>
+  </div>
+</div>
+

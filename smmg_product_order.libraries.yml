@@ -1,0 +1,20 @@
+smmg_product_order.main:
+  css:
+    theme:
+      assets/css/smmg_product_order.css: {}
+  js:
+    assets/js/smmgCDOrder.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+
+smmg_product_order.form:
+  css:
+    theme:
+      assets/css/smmg_product_order.css: {}
+      assets/css/smmg_product_order_form.css: {}
+  js:
+    assets/js/smmgCDOrderForm.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once

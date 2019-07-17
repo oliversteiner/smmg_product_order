@@ -1,0 +1,5 @@
+smmg_product_order.config:
+  title: 'product_order Translatable config'
+  base_route_name: smmg_product_order.admin.config
+  names:
+    - smmg_product_order.config
