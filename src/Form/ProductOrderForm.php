@@ -214,6 +214,74 @@ class ProductOrderForm extends FormBase
         '#theme' => '',
         '#suffix' => '</div>',
       ];
+
+
+      // Download
+      // ==========================================================
+
+      //  Download Row Start
+      $form['product_order']['item'][$i]['download_start'] = [
+        '#theme' => '',
+        '#prefix' =>
+          '<div id="product_order-row-' .$i .'-download" 
+          class="product_order-table-row">',
+      ];
+
+      // ## Download Input Number and Times
+      $form['product_order']['item'][$i]['download_number_of'] = [
+        '#type' => 'select',
+        '#title' => '',
+        '#options' => $this->number_options,
+        '#default_value' => $number,
+        '#required' => false,
+        '#prefix' =>
+          '<span class="product_order-row-number product_order-number">',
+        '#suffix' =>
+          '</span>' .
+          '<span class="product_order-row-times product_order-times">&times;</span>',
+      ];
+
+      // ## Download Input Hidden Product id
+      $form['product_order']['item'][$i]['download_id'] = [
+        '#type' => 'hidden',
+        '#value' => $product['id'],
+      ];
+
+      // Download  Name / Product
+      $form['product_order']['item'][$i]['download_name'] = [
+        '#theme' => '',
+        '#prefix' =>
+          '<span  class="product_order-row-product product_order-name">' .
+          $product['name'] .' (Download)'.
+          '</span>',
+      ];
+
+      // Download Price
+      $form['product_order']['item'][$i]['download_price'] = [
+        '#theme' => '',
+        '#prefix' =>
+          '<span  class="product_order-row-price product_order-price">' .
+          $product['price_download'] .
+          '</span>',
+      ];
+
+      // Download Price total
+      $form['product_order']['item'][$i]['download_price_total'] = [
+        '#theme' => '',
+        '#prefix' =>
+          '<span  id="product_order-row-price-total-' .
+          +$i .
+          '" class="product_order-row-price-total product_order-price">' .
+          $product['price_download_total'] .
+          '</span>',
+      ];
+
+      //  Download Row End
+      $form['product_order']['item'][$i]['download_end'] = [
+        '#theme' => '',
+        '#suffix' => '</div>',
+      ];
+
       $i++;
     }
     // Discount
