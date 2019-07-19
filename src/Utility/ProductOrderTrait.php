@@ -26,7 +26,8 @@ trait ProductOrderTrait
     $product_order_nid,
     $member_nid = null,
     $token = null
-  ): array {
+  ): array
+  {
     $config = self::getConfig();
 
     $amount_suffix = $config->get('suffix');
@@ -55,11 +56,11 @@ trait ProductOrderTrait
 
     // Clean Input
     $member_nid = trim($member_nid);
-    $member_nid = (int) $member_nid;
+    $member_nid = (int)$member_nid;
 
     // Clean Input
     $product_order_nid = trim($product_order_nid);
-    $product_order_nid = (int) $product_order_nid;
+    $product_order_nid = (int)$product_order_nid;
 
     // Load Terms from Taxonomy
     $amount_list = Helper::getTermsByID('product_order_amount');
@@ -211,53 +212,72 @@ trait ProductOrderTrait
    * @return array
    * @throws InvalidPluginDefinitionException
    * @throws PluginNotFoundException
+   * @throws Exception
    */
   public static function newProductOrderItem($order_item): array
   {
-    $config = self::getConfig();
+    $result = [];
+    $products = self::getAllProductsByID();
 
-    $output = [
-      'status' => false,
-      'mode' => 'save',
-      'nid' => false,
-      'message' => '',
-    ];
-    $suffix = $config->get('suffix');
-
-    $item_name = $order_item['name'];
     $item_nid = $order_item['id'];
+    $item_name = $products[$item_nid]['name'];
     $item_number_of = $order_item['number_of'];
-    $item_price = $order_item['price'];
+    $item_price = $products[$item_nid]['price'];
+    $item_price_shipping = $products[$item_nid]['price_shipping'];
 
-    $title = $item_number_of . ' × ' . $item_name . ' ' . $suffix;
-    $node = Drupal::entityTypeManager()
-      ->getStorage('node')
-      ->create([
-        'type' => 'product_order_item',
-        'status' => 0, //(1 or 0): published or not
-        'promote' => 0, //(1 or 0): promoted to front page
-        'title' => $title,
-        'field_number_of' => $item_number_of,
-        'field_product' => $item_nid,
-        'field_price_in_cent' => $item_price,
-      ]);
+    $title = $item_number_of . ' × ' . $item_name;
 
-    // Save
-    try {
-      $node->save();
-      $new_order_nid = $node->id();
+    if ($item_number_of !== 0) {
+      $node = Drupal::entityTypeManager()
+        ->getStorage('node')
+        ->create([
+          'type' => 'product_order_item',
+          'status' => 0, //(1 or 0): published or not
+          'promote' => 0, //(1 or 0): promoted to front page
+          'title' => $title,
+          'field_number_of' => $item_number_of,
+          'field_product' => $item_nid,
+          'field_price_in_cent' => $item_price*100,
+        ]);
 
-      // if OK
-      if ($new_order_nid) {
-        $message = t('Information successfully saved');
-        $output['message'] = $message;
-        $output['status'] = true;
-        $output['nid'] = $new_order_nid;
+      // Save
+      try {
+        $node->save();
+        $order_item_nid = $node->id();
+        $result[] = $order_item_nid;
+      } catch (EntityStorageException $e) {
       }
-    } catch (EntityStorageException $e) {
     }
 
-    return $output;
+    if ($order_item['download_number_of'] && $order_item['download_number_of'] !== 0) {
+
+      $item_number_of_download = $order_item['download_number_of'];
+      $item_price_download = $products[$item_nid]['price_download'];
+      $title_download = $item_number_of_download . ' × ' . $item_name . ' (Download) ';
+
+
+      $node_download = Drupal::entityTypeManager()
+        ->getStorage('node')
+        ->create([
+          'type' => 'product_order_item',
+          'status' => 0, //(1 or 0): published or not
+          'promote' => 0, //(1 or 0): promoted to front page
+          'title' => $title_download,
+          'field_number_of' => $item_number_of_download,
+          'field_product' => $item_nid,
+          'field_price_in_cent' => $item_price_download*100,
+        ]);
+
+      // Save
+      try {
+        $node_download->save();
+        $order_item_download_nid = $node_download->id();
+        $result[] = $order_item_download_nid;
+      } catch (EntityStorageException $e) {
+      }
+    }
+
+    return $result;
   }
 
   /**
@@ -265,6 +285,7 @@ trait ProductOrderTrait
    * @return array
    * @throws InvalidPluginDefinitionException
    * @throws PluginNotFoundException
+   * @throws Exception
    */
   public static function newOrder(array $data): array
   {
@@ -278,8 +299,10 @@ trait ProductOrderTrait
     // save product_order units
     foreach ($order_items as $order_item) {
       try {
-        $result = self::newProductOrderItem($order_item);
-        $order_items[] = $result['nid'];
+        $results = self::newProductOrderItem($order_item);
+        foreach ($results as $nid) {
+          $order_items[] = $nid;
+        }
       } catch (InvalidPluginDefinitionException $e) {
       } catch (PluginNotFoundException $e) {
       }
@@ -400,9 +423,8 @@ trait ProductOrderTrait
     return Drupal::config($module . '.settings');
   }
 
-  public function getAllProductNids()
+  public static function getAllProductNids()
   {
-    $products = [];
     $query =
       //
       // Condition
@@ -444,17 +466,16 @@ trait ProductOrderTrait
    *
    * @throws Exception
    */
-  public function getAllProducts(): array
+  public static function getAllProducts(): array
   {
     $products = [];
 
-    $nids = $this->getAllProductNids();
+    $nids = self::getAllProductNids();
 
     if ($nids && is_array($nids)) {
       $entity_list = Node::loadMultiple($nids);
 
       foreach ($entity_list as $nid => $node) {
-
         // name
         $name = $node->getTitle();
 
@@ -542,4 +563,22 @@ trait ProductOrderTrait
 
     return $products;
   }
+
+  /**
+   * @return array
+   * @throws Exception
+   */
+  public static function getAllProductsByID(): array
+  {
+    $products_by_nid = [];
+    $products = self::getAllProducts();
+
+    foreach ($products as $product) {
+      $products_by_nid[$product['id']] = $product;
+    }
+
+    return $products_by_nid;
+
+  }
+
 }

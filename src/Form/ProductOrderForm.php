@@ -241,11 +241,6 @@ class ProductOrderForm extends FormBase
           '<span class="product_order-row-times product_order-times">&times;</span>',
       ];
 
-      // ## Download Input Hidden Product id
-      $form['product_order']['item'][$i]['download_id'] = [
-        '#type' => 'hidden',
-        '#value' => $product['id'],
-      ];
 
       // Download  Name / Product
       $form['product_order']['item'][$i]['download_name'] = [
@@ -369,7 +364,6 @@ class ProductOrderForm extends FormBase
     ];
 
     // Gender / Firm
-    $gender_options = [0 => t('Please Chose')];
 
     // Load Taxonomy
     $vid = 'gender';
