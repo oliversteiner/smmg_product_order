@@ -237,7 +237,8 @@ trait ProductOrderTrait
           'title' => $title,
           'field_number_of' => $item_number_of,
           'field_product' => $item_nid,
-          'field_price_in_cent' => $item_price*100,
+          'field_price_in_cent' => $item_price * 100,
+          'field_shipping_price_in_cent' => $item_price_shipping * 100,
         ]);
 
       // Save
@@ -265,7 +266,7 @@ trait ProductOrderTrait
           'title' => $title_download,
           'field_number_of' => $item_number_of_download,
           'field_product' => $item_nid,
-          'field_price_in_cent' => $item_price_download*100,
+          'field_price_in_cent' => $item_price_download * 100,
         ]);
 
       // Save
@@ -355,8 +356,19 @@ trait ProductOrderTrait
       'field_smmg_token' => $token,
     ]);
 
-    // product_order
+    // Items
     $new_order->get('field_order_item')->setValue($order_items);
+
+
+    // Price Total
+    $order_total = self::getTotal($data);
+    $new_order->get('field_product_order_total')->setValue($order_total);
+
+
+    // Price Shipping
+    $order_shipping_total = self::getShippingTotal($data);
+    $new_order->get('field_product_shipping_total')->setValue($order_shipping_total);
+
 
     // Save
     try {
@@ -579,6 +591,28 @@ trait ProductOrderTrait
 
     return $products_by_nid;
 
+  }
+
+  /**
+   * @param $data
+   * @return int
+   */
+  public static function getTotal($data): int
+  {
+
+    $total = 100;
+    return $total;
+  }
+
+  /**
+   * @param $data
+   * @return int
+   */
+  public static function getShippingTotal($data): int
+  {
+
+    $total = 200;
+    return $total;
   }
 
 }

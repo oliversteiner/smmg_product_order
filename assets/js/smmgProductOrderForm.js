@@ -1,143 +1,105 @@
 (function($) {
-  Drupal.behaviors.smmgCDOrderFormBehavior = {
+  Drupal.behaviors.smmgProductOrderFormBehavior = {
+    Order: {
+      discountPrice: 0,
+      discountNumber: 0,
+      priceTotal: 0,
+      priceShippingTotal: 0,
+      products: [],
+    },
+
     getProducts() {
       // get first Item of array with valid key
-      /** @namespace drupalSettings.product_order */
-      const { products } = drupalSettings.product_order;
+      /** @namespace drupalSettings.productOrder */
+      /** @namespace Product.numberOf  */
+      /** @namespace Product.numberOf_download  */
+      /** @namespace Product.price  */
+      /** @namespace Product.priceDownload  */
+      /** @namespace Product.priceTotal  */
+      /** @namespace Product.priceTotal_download  */
+      /** @namespace Product.priceShipping  */
+      /** @namespace Product.priceShippingTotal  */
+      /** @namespace Product.downloadFor  */
+      const { products } = drupalSettings.productOrder;
       return products;
     },
 
     /**
      *
      * */
-    updateTotal: function(products) {
+    updateTotal: function() {
       console.log('updateTotal');
+
+      let discountPrice = 0;
+      let discountNumber = 0;
+      let priceTotal = 0;
+      let priceShipping = 0;
+
+      const products = this.updateProducts();
+
       console.log('products', products);
 
-      let vOrder = {
-        discountPrice: 0,
-        discountNumber: 0,
-        priceTotal: 0,
-        shippingTotal: 0,
-        products: [],
-      };
-
-      // check Rows
+      // price Total
       for (let i = 0; i < products.length; i++) {
-        const rowNumber = i + 1;
+        priceTotal += products[i].priceTotal;
+      }
 
-        // Define virtual Product
-        let vProduct = {
-          number: 0,
-          price: 0,
-          shipping: 0,
-          priceTotal: 0,
-          shippingTotal: 0,
-        };
-
-        // Get Data from drupalSettings.product_order
-        vProduct.price = parseInt(products[i].price, 10);
-        vProduct.shipping = parseInt(products[i].shipping, 10);
-
-        // get Inputs
-        const $elem_row_number = $(`#product_order-row-${rowNumber} select`);
-        vProduct.number = parseInt($elem_row_number.val(), 10);
-
-        // calculate Price
-        vProduct.priceTotal = vProduct.number * vProduct.price;
-
-        // Add Total to Order
-        vOrder.priceTotal += vProduct.priceTotal;
-
-        // Calculate Shipping
-        vProduct.shippingTotal = vProduct.number > 0 ? vProduct.shipping : 0;
-
-        // check if new shipping is more then current shipping
-        if (
-          vOrder.shippingTotal === 0 ||
-          vProduct.shippingTotal > vOrder.shippingTotal
-        ) {
-          vOrder.shippingTotal += vProduct.shippingTotal;
-        }
-        console.log('vProduct', vProduct);
-
-        // Add updated Product to Order
-        vOrder.products.push(vProduct);
+      // Discount Total
+      for (let i = 0; i < products.length; i++) {
+        discountPrice += products[i].discountPrice;
+        discountNumber += products[i].discountNumber;
       }
 
       // add Shipping
-      vOrder.priceTotal += vOrder.shippingTotal;
-
-      // calculate Discount
-      // digital-Download minus number-of-CDs * Download-Price
-      // const discountNumber = vOrder.products[1].number - vOrder.products[0].number;
-      let discountNumber = 0;
-      const numberOfCDs = vOrder.products[0].number;
-      const numberOfDownloads = vOrder.products[1].number;
-
-      // more Download as CD: only number of downloads:
-      if (numberOfDownloads >= numberOfCDs) {
-        discountNumber = numberOfCDs;
-      } else {
-        discountNumber = numberOfDownloads;
-      }
-      vOrder.discountNumber = discountNumber;
-      // discount total
-      const discount = discountNumber * vOrder.products[1].price;
-
-
-      // add to virtual Order
-      vOrder.discountPrice = discount;
+      priceShipping = this.calculateShipping(products);
 
       // update Price Total with Discount:
-      vOrder.priceTotal -= discount;
+      priceTotal -= discountPrice;
 
-      this.displayResults(vOrder);
+      // add Shipping
+      priceTotal += priceShipping;
+
+      const order = {
+        discountPrice: discountPrice,
+        discountNumber: discountNumber,
+        priceTotal: priceTotal,
+        priceShipping: priceShipping,
+      };
+
+      Drupal.behaviors.smmgProductOrderFormBehavior.Order = order;
+      this.displayResults(order);
     },
 
     /**
      *
      * */
-    displayResults(vOrder) {
-      console.log('vOrder', vOrder);
+    displayResults(order) {
+      console.log('order', order);
 
       // elements
-      const $priceTotal = $('.product_order-table-total-price');
-      const $shippingTotal = $('.product_order-total-shipping-price');
-      const $discountPrice = $('.product_order-total-discount-price');
-      const $discountNumber = $('.product_order-discount-number');
-      const $discountRow = $('.product_order-row-discount');
-
-      // display row
-      for (let i = 0; i < vOrder.products.length; i++) {
-        // Row number
-        const rowNumber = i + 1;
-
-        // display total of each row
-        const $rowTotal = $(`#product_order-row-price-total-${rowNumber}`);
-        $rowTotal.text(this.convertCents(vOrder.products[i].priceTotal));
-      }
+      const $priceTotal = $('.product-order-total-price-total');
+      const $shippingTotal = $('.product-order-total-shipping-price');
+      const $discountPrice = $('.product-order-total-discount-price');
+      const $discountNumber = $('.product-order-discount-number');
+      const $discountRow = $('.product-order-row-discount');
 
       // display discount
 
       // display total
-      $priceTotal.text(this.convertCents(vOrder.priceTotal));
-      $shippingTotal.text(this.convertCents(vOrder.shippingTotal));
+      $priceTotal.text(this.convertCents(order.priceTotal));
+      $shippingTotal.text(this.convertCents(order.priceShipping));
 
-      if(vOrder.discountNumber === 1){
+      if (order.discountNumber === 1) {
         $discountRow.show();
-        $discountNumber.text(vOrder.discountNumber + ' ink.');
-        $discountPrice.text('-' + this.convertCents(vOrder.discountPrice));
-
-      }else if(vOrder.discountNumber > 1){
+        $discountNumber.text(order.discountNumber + ' × Download inkl.');
+        $discountPrice.text('-' + this.convertCents(order.discountPrice));
+      } else if (order.discountNumber > 1) {
         $discountRow.show();
-        $discountNumber.text(vOrder.discountNumber + ' ink.');
-        $discountPrice.text('-' + this.convertCents(vOrder.discountPrice));
-
-      }else{
+        $discountNumber.text(order.discountNumber + ' × Downloads inkl.');
+        $discountPrice.text('-' + this.convertCents(order.discountPrice));
+      } else {
         $discountRow.hide();
       }
-
     },
 
     /**
@@ -149,8 +111,42 @@
       return result.toFixed(2);
     },
 
+    /**
+     *
+     * @return {*|drupalSettings.productOrder.products}
+     */
+    updateProducts() {
+      let products = this.getProducts();
+
+      for (let i = 0; i < products.length; i++) {
+        // get Inputs
+        const $elem_row_number = $(`#product-order-row-${i} select`);
+        products[i].numberOf = parseInt($elem_row_number.val(), 10);
+
+        // calculate Price Total
+        products[i].priceTotal = products[i].numberOf * products[i].price;
+
+        // Calculate Shipping
+        products[i].priceShippingTotal =
+          products[i].numberOf > 0 ? products[i].priceShipping : 0;
+
+        // Display results
+        const $rowTotal = $(`#product-order-row-price-total-${i}`);
+        $rowTotal.text(this.convertCents(products[i].priceTotal));
+
+        // Download
+        if (products[i].download) {
+          products[i - 1].downloadAvailable = true;
+
+          products[i - 1].numberOf_download = products[i].numberOf;
+        }
+      }
+      products = this.calculateDiscount(products);
+      return products;
+    },
+
     attach(context, settings) {
-      $('#smmg-cd-order-form', context)
+      $('#smmg-product-order-form', context)
         .once('smmgCDOrderFormBehavior')
         .each(() => {
           console.log('smmgCDOrderForm');
@@ -162,16 +158,77 @@
           // Check for Number Input change
           const scope = this;
           for (let i = 0; i < products.length; i++) {
-            const rowNumber = i + 1;
-            const $number = $(`#product_order-row-${rowNumber} select`);
-            // console.log('$number', $number);
+            const $input = $(`#product-order-row-${i} select`);
 
             // Check for Number Input change
-            $number.change(() => {
+            $input.change(() => {
               scope.updateTotal(products);
             });
           } // end for products
         });
+    },
+    /**
+     *
+     * @param products
+     * @return number
+     */
+    calculateShipping(products) {
+
+      // Init empty queue for all shipping prices of products
+      let shippingQueue = [];
+
+      // add shipping prices to queue if number of products is not 0
+      for (let i = 0; i < products.length; i++) {
+        // Calculate Shipping
+        const priceShipping =
+          products[i].numberOf > 0 ? products[i].priceShippingTotal : 0;
+
+        shippingQueue.push(priceShipping);
+      }
+
+      console.log('shippingQueue: ', shippingQueue);
+
+      // get largest item in shipping queue
+      const largestShippingPrice = Math.max(...shippingQueue);
+
+      return largestShippingPrice;
+    },
+    /**
+     *
+     *
+     * @param products
+     * @return {number}
+     */
+    calculateDiscount(products) {
+      // if you buy a CD you get 1 Download for free
+      //
+
+      for (let i = 0; i < products.length; i++) {
+        products[i].discountNumber = 0;
+        products[i].discountPrice = 0;
+
+        if (products[i].downloadAvailable) {
+          const numberOfCDs = products[i].numberOf;
+          const numberOfDownloads = products[i].numberOf_download;
+          const priceDownload = products[i].priceDownload;
+          let discountNumber = 0;
+          let discountPrice = 0;
+
+          if (numberOfCDs >= numberOfDownloads) {
+            discountNumber = numberOfDownloads;
+          } else {
+            discountNumber = numberOfCDs;
+          }
+
+          discountPrice = discountNumber * priceDownload;
+
+          products[i].discountNumber = discountNumber;
+          products[i].discountPrice = discountPrice;
+        }
+
+      }
+      return products;
+
     },
   };
 })(jQuery, Drupal, drupalSettings);

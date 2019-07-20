@@ -34,25 +34,12 @@ class ProductOrderForm extends FormBase
 
   use ProductOrderTrait;
 
-
   /**
    *  constructor.
    */
   public function __construct()
   {
     $this->number_options = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    $this->number_options = [
-      0 => 0,
-      1 => 1,
-      2 => 2,
-      3 => 3,
-      4 => 4,
-      5 => 5,
-      6 => 6,
-      7 => 7,
-      8 => 8,
-      9 => 9,
-      10 => 10];
 
     // Load Products
     $this->products = $this->getAllProducts();
@@ -94,8 +81,8 @@ class ProductOrderForm extends FormBase
    */
   public function buildForm(array $form, FormStateInterface $form_state)
   {
-    $values = $form_state->getUserInput();
     $products = $this->products;
+    $virtual_products = []; // Data for JS
 
     // Spam and Bot Protection
     honeypot_add_form_protection($form, $form_state, [
@@ -106,11 +93,6 @@ class ProductOrderForm extends FormBase
     // JS and CSS
     $form['#attached']['library'][] =
       'smmg_product_order/smmg_product_order.form';
-
-    // Data to JS
-    $form['#attached']['drupalSettings']['product_order']['numberOptions'] =
-      $this->number_options;
-    $form['#attached']['drupalSettings']['product_order']['products'] = $products;
 
     // Disable browser HTML5 validation
     $form['#attributes']['novalidate'] = 'novalidate';
@@ -132,60 +114,83 @@ class ProductOrderForm extends FormBase
     $form['product_order']['item'] = [
       '#type' => 'fieldset',
       '#title' => 'Bestellliste',
-      '#attributes' => ['class' => ['product_order-block']],
+      '#attributes' => ['class' => ['product-order-block']],
     ];
 
     // Table Header
     $form['product_order']['item']['header'] = [
       '#theme' => '',
       '#prefix' =>
-        '<div id="product_order-table-header" class="product_order-table-header">' .
+        '<div id="product-order-header" class="product-order-header">' .
         '</div>',
     ];
 
-    $form['product_order']['item']['#tree'] = TRUE; // This is to prevent flattening the form value
-
+    $form['product_order']['item']['#tree'] = true; // This is to prevent flattening the form value
 
     // Table Body
     $i = 0;
+    $row_nr = 0;
+
     foreach ($products as $product) {
-      $number = $i === 0 ? 1 : $default_number;
+      $default_number_of = 0;
+      $id = $product['id'];
+
+      // Product
+      $name = $product['name'];
+      $price = $product['price'];
+      $price_shipping = $product['price_shipping'];
+      $price_total = 0;
+
+      // Product Download
+      $name_download = $name . ' (Download)';
+      $price_download = $product['price_download'];
+      $price_download_shipping = 0;
+      $price_download_total = 0;
+
+
+      // Product (CD)
+      // =====================================
 
       //  Row Start
       $form['product_order']['item'][$i]['start'] = [
         '#theme' => '',
         '#prefix' =>
-          '<div id="product_order-row-' .
-          $i .
-          '" class="product_order-table-row">',
+          '<div id="product-order-row-' .
+          $row_nr .
+          '" class="product-order-row">',
       ];
+
+/*      $form['product_order']['item'][$i]['id-cd'] = [
+        '#theme' => '',
+        '#prefix' => '<span>' . $row_nr . '</span>',
+      ];*/
 
       // Input Number and Times
       $form['product_order']['item'][$i]['number_of'] = [
         '#type' => 'select',
         '#title' => '',
         '#options' => $this->number_options,
-        '#default_value' => $number,
+        '#default_value' => $default_number_of,
         '#required' => false,
         '#prefix' =>
-          '<span class="product_order-row-number product_order-number">',
+          '<span class="product-order-row-number product-order-number">',
         '#suffix' =>
           '</span>' .
-          '<span class="product_order-row-times product_order-times">&times;</span>',
+          '<span class="product-order-row-times product-order-times">&times;</span>',
       ];
 
       // Input Hidden Product id
       $form['product_order']['item'][$i]['id'] = [
         '#type' => 'hidden',
-        '#value' => $product['id'],
+        '#value' => $id,
       ];
 
       // Name / Product
       $form['product_order']['item'][$i]['name'] = [
         '#theme' => '',
         '#prefix' =>
-          '<span  class="product_order-row-product product_order-name">' .
-          $product['name'] .
+          '<span  class="product-order-row-product product-order-name">' .
+          $name .
           '</span>',
       ];
 
@@ -193,8 +198,8 @@ class ProductOrderForm extends FormBase
       $form['product_order']['item'][$i]['price'] = [
         '#theme' => '',
         '#prefix' =>
-          '<span  class="product_order-row-price product_order-price">' .
-          $product['price'] .
+          '<span  class="product-order-row-price product-order-price">' .
+          $price .
           '</span>',
       ];
 
@@ -202,10 +207,10 @@ class ProductOrderForm extends FormBase
       $form['product_order']['item'][$i]['price_total'] = [
         '#theme' => '',
         '#prefix' =>
-          '<span  id="product_order-row-price-total-' .
-          +$i .
-          '" class="product_order-row-price-total product_order-price">' .
-          $product['price_total'] .
+          '<span  id="product-order-row-price-total-' .
+          +$row_nr .
+          '" class="product-order-row-price-total product-order-price">' .
+          $price_total .
           '</span>',
       ];
 
@@ -215,39 +220,58 @@ class ProductOrderForm extends FormBase
         '#suffix' => '</div>',
       ];
 
+      // Product (CD)
+      $virtual_products[$row_nr] = [
+        'numberOf' => $default_number_of,
+        'name' => $name,
+        'id' => $id,
+        'download' => false,
+        'price' => $price*100,
+        'priceDownload' => $price_download*100,
+        'priceShipping' => $price_shipping*100,
+        'priceTotal' => $price_total*100,
+      ];
 
-      // Download
+      // Product Item Download
       // ==========================================================
+
+      $row_nr++;
 
       //  Download Row Start
       $form['product_order']['item'][$i]['download_start'] = [
         '#theme' => '',
         '#prefix' =>
-          '<div id="product_order-row-' .$i .'-download" 
-          class="product_order-table-row">',
+          '<div id="product-order-row-' .
+          $row_nr .
+          '" 
+          class="product-order-row">',
       ];
+
+/*      $form['product_order']['item'][$i]['id-download'] = [
+        '#theme' => '',
+        '#prefix' => '<span>' . $row_nr . '</span>',
+      ];*/
 
       // ## Download Input Number and Times
       $form['product_order']['item'][$i]['download_number_of'] = [
         '#type' => 'select',
         '#title' => '',
         '#options' => $this->number_options,
-        '#default_value' => $number,
+        '#default_value' => $default_number_of,
         '#required' => false,
         '#prefix' =>
-          '<span class="product_order-row-number product_order-number">',
+          '<span class="product-order-row-number product-order-number">',
         '#suffix' =>
           '</span>' .
-          '<span class="product_order-row-times product_order-times">&times;</span>',
+          '<span class="product-order-row-times product-order-times">&times;</span>',
       ];
-
 
       // Download  Name / Product
       $form['product_order']['item'][$i]['download_name'] = [
         '#theme' => '',
         '#prefix' =>
-          '<span  class="product_order-row-product product_order-name">' .
-          $product['name'] .' (Download)'.
+          '<span  class="product-order-row-product product-order-name">' .
+          $name_download .
           '</span>',
       ];
 
@@ -255,8 +279,8 @@ class ProductOrderForm extends FormBase
       $form['product_order']['item'][$i]['download_price'] = [
         '#theme' => '',
         '#prefix' =>
-          '<span  class="product_order-row-price product_order-price">' .
-          $product['price_download'] .
+          '<span  class="product-order-row-price product-order-price">' .
+          $price_download .
           '</span>',
       ];
 
@@ -264,10 +288,10 @@ class ProductOrderForm extends FormBase
       $form['product_order']['item'][$i]['download_price_total'] = [
         '#theme' => '',
         '#prefix' =>
-          '<span  id="product_order-row-price-total-' .
-          +$i .
-          '" class="product_order-row-price-total product_order-price">' .
-          $product['price_download_total'] .
+          '<span  id="product-order-row-price-total-' .
+          $row_nr .
+          '" class="product-order-row-price-total product-order-price">' .
+          $price_download_total .
           '</span>',
       ];
 
@@ -277,18 +301,37 @@ class ProductOrderForm extends FormBase
         '#suffix' => '</div>',
       ];
 
+      // Product (download)
+      $virtual_products[$row_nr] = [
+        'numberOf' => $default_number_of,
+        'name' => $name_download,
+        'id' => $id,
+        'download' => true,
+        'downloadFor' => $id,
+        'price' => $price_download*100,
+        'priceShipping' => $price_download_shipping*100,
+        'priceTotal' => $price_download_total*100,
+      ];
+
       $i++;
-    }
+      $row_nr++;
+    } // End foreach Product
+
+    // Virtual Product Items to  JS
+    $form['#attached']['drupalSettings']['productOrder'][
+    'products'
+    ] = $virtual_products;
+
     // Discount
     $form['product_order']['item']['discount'] = [
       '#theme' => '',
       '#prefix' =>
-        '<div id="product_order-row-discount" class="product_order-row-discount product_order-table-row" style="display: none">' .
-        '<span class="product_order-number"></span>' .
-        '<span class="product_order-times"></span>' .
-        '<span class="product_order-name"><span class="product_order-discount-number"></span></span>' .
-        '<span class="product_order-price"></span>' .
-        '<span class="product_order-total-discount-price product_order-price">0.00</span>' .
+        '<div id="product-order-row-discount" class="product-order-row-discount product-order-row" style="display: none">' .
+        '<span class="product-order-number"></span>' .
+        '<span class="product-order-times"></span>' .
+        '<span class="product-order-name"><span class="product-order-discount-number"></span></span>' .
+        '<span class="product-order-price"></span>' .
+        '<span class="product-order-total-discount-price product-order-price">0.00</span>' .
         '</div>',
     ];
 
@@ -296,12 +339,12 @@ class ProductOrderForm extends FormBase
     $form['product_order']['item']['shipping'] = [
       '#theme' => '',
       '#prefix' =>
-        '<div id="product_order-row-shipping" class="product_order-row-shipping product_order-table-row">' .
-        '<span class="product_order-number"></span>' .
-        '<span class="product_order-times"></span>' .
-        '<span class="product_order-name">Versand</span>' .
-        '<span class="product_order-price"></span>' .
-        '<span class="product_order-total-shipping-price product_order-price">5.00</span>' .
+        '<div id="product-order-row-shipping" class="product-order-row-shipping product-order-row">' .
+        '<span class="product-order-number"></span>' .
+        '<span class="product-order-times"></span>' .
+        '<span class="product-order-name">Versand</span>' .
+        '<span class="product-order-price"></span>' .
+        '<span class="product-order-total-shipping-price product-order-price">0.00</span>' .
         '</div>',
     ];
 
@@ -309,12 +352,12 @@ class ProductOrderForm extends FormBase
     $form['product_order']['item']['total'] = [
       '#theme' => '',
       '#prefix' =>
-        '<div id="product_order-row-total" class="product_order-row-total product_order-table-row">' .
-        '<span class="product_order-number"></span>' .
-        '<span class="product_order-times"></span>' .
-        '<span class="product_order-table-total-total product_order-name">Total</span>' .
-        '<span class="product_order-price"></span>' .
-        '<span class="product_order-table-total-price product_order-price">25.00</span>' .
+        '<div id="product-order-row-total" class="product-order-row-total product-order-row">' .
+        '<span class="product-order-number"></span>' .
+        '<span class="product-order-times"></span>' .
+        '<span class="product-order-total-label-total product-order-name">Total</span>' .
+        '<span class="product-order-price"></span>' .
+        '<span class="product-order-total-price-total product-order-price">0.00</span>' .
         '</div>',
     ];
 
@@ -323,7 +366,7 @@ class ProductOrderForm extends FormBase
     $form['product_order']['item']['lieferung'] = [
       '#theme' => '',
       '#markup' =>
-        '<div class="product_order-info-lieferung product_order-info">' .
+        '<div class="product-order-info-lieferung product-order-info">' .
         'Alle Preise in CHF / inkl. MwSt.<br>' .
         'Voraussichtliche Lieferung: Ende Juli 2019.' .
         '</div>',
@@ -335,20 +378,20 @@ class ProductOrderForm extends FormBase
     $form['product_order']['details'] = [
       '#type' => 'fieldset',
       '#title' => 'Bestellinformationen',
-      '#attributes' => ['class' => ['product_order-block']],
+      '#attributes' => ['class' => ['product-order-block']],
     ];
 
     $form['product_order']['details']['beschreibung'] = [
       '#theme' => '',
       '#markup' =>
-        '<div class="product_order-info-text">' .
+        '<div class="product-order-info-text">' .
         '<h3>CD</h3>' .
         '<p>Die CD wird nach Abschluss der Produktion  mit Rechnung versandt. <br>' .
         'Rechnung zahlbar innert 10 Tagen.</p>' .
         '<h3>Download: mp3 </h3>' .
         '<p>Nach Zahlungseingang wird ihnen per Email  ein Link mit Zugriff auf die Dateien zugeschickt.<br>' .
         'Beim Kauf einer CD ist der mp3-Download inklusive.<br>' .
-        '<span class="product_order-info">Dateiformat: mp3 / 256 bit / DRM-frei</span>' .
+        '<span class="product-order-info">Dateiformat: mp3 / 256 bit / DRM-frei</span>' .
         '</p>' .
         '</div>',
     ];
@@ -360,7 +403,7 @@ class ProductOrderForm extends FormBase
     $form['product_order']['postal_address'] = [
       '#type' => 'fieldset',
       '#title' => 'Lieder- und Rechnungsadresse',
-      '#attributes' => ['class' => ['product_order-block']],
+      '#attributes' => ['class' => ['product-order-block']],
     ];
 
     // Gender / Firm
@@ -368,12 +411,12 @@ class ProductOrderForm extends FormBase
     // Load Taxonomy
     $vid = 'gender';
     $gender_options = Helper::getTermsByID($vid);
-
+    $default_gender = array_key_first($gender_options);
     // Gender Input
     $form['product_order']['postal_address']['gender'] = [
       '#type' => 'select',
       '#title' => t('Gender'),
-      '#default_value' => $gender_options[0],
+      '#default_value' => $default_gender,
       '#options' => $gender_options,
       '#required' => true,
       '#prefix' => '<div class="form-group">',
@@ -476,6 +519,8 @@ class ProductOrderForm extends FormBase
       '#prefix' => '<div class="form-group">',
       '#suffix' => '</div>',
     ];
+
+
 
     //
     return $form;
@@ -581,7 +626,7 @@ class ProductOrderForm extends FormBase
 
       if ($result) {
         if ($result['status']) {
-          $arg['product_order_nid'] = (int)$result['nid'];
+          $arg['product_order_nid'] = (int) $result['nid'];
         } else {
           // Error on create new product_order Order
           if ($result['message']) {
@@ -605,6 +650,14 @@ class ProductOrderForm extends FormBase
   {
     return number_format($cents / 100, 2, '.', ' ');
   }
+}
 
-
+if (!function_exists('array_key_first')) {
+  function array_key_first(array $arr)
+  {
+    foreach ($arr as $key => $unused) {
+      return $key;
+    }
+    return null;
+  }
 }

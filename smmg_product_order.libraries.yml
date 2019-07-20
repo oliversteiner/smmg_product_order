@@ -3,7 +3,7 @@ smmg_product_order.main:
     theme:
       assets/css/smmg_product_order.css: {}
   js:
-    assets/js/smmgCDOrder.js: {}
+    assets/js/smmgProductOrder.js: {}
   dependencies:
     - core/jquery
     - core/jquery.once
@@ -14,7 +14,7 @@ smmg_product_order.form:
       assets/css/smmg_product_order.css: {}
       assets/css/smmg_product_order_form.css: {}
   js:
-    assets/js/smmgCDOrderForm.js: {}
+    assets/js/smmgProductOrderForm.js: {}
   dependencies:
     - core/jquery
     - core/jquery.once
