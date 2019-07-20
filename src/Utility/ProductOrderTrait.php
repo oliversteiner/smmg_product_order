@@ -24,11 +24,11 @@ trait ProductOrderTrait
    */
   public static function productOrderVariables(
     $product_order_nid,
-    $member_nid = null,
     $token = null
   ): array
   {
     $config = self::getConfig();
+    $products = self::getAllProductsByID();
 
     $amount_suffix = $config->get('suffix');
 
@@ -44,9 +44,9 @@ trait ProductOrderTrait
     $variables['address']['email'] = '';
     $variables['address']['phone'] = '';
 
-    $variables['product_orders'] = [];
+    $variables['order_item'] = [];
 
-    $variables['total']['number'] = 0;
+    $variables['total']['number_of'] = 0;
     $variables['total']['product'] = 0;
 
     $variables['newsletter'] = false;
@@ -55,24 +55,19 @@ trait ProductOrderTrait
     $variables['token'] = false;
 
     // Clean Input
-    $member_nid = trim($member_nid);
-    $member_nid = (int)$member_nid;
-
-    // Clean Input
     $product_order_nid = trim($product_order_nid);
     $product_order_nid = (int)$product_order_nid;
 
     // Load Terms from Taxonomy
-    $amount_list = Helper::getTermsByID('product_order_amount');
     $gender_list = Helper::getTermsByID('gender');
 
     // product_order Order
     // ==============================================
-    $product_order = Node::load($product_order_nid);
+    $order_node = Node::load($product_order_nid);
 
-    if ($product_order && $product_order->bundle() === 'product_order') {
+    if ($order_node && $order_node->bundle() === 'product_order') {
       // check token
-      $node_token = Helper::getFieldValue($product_order, 'smmg_token');
+      $node_token = Helper::getFieldValue($order_node, 'smmg_token');
 
       if ($token != $node_token) {
         // throw new AccessDeniedHttpException();
@@ -81,107 +76,137 @@ trait ProductOrderTrait
       // Address
       // ==============================================
       $variables['address']['gender'] = Helper::getFieldValue(
-        $product_order,
+        $order_node,
         'gender',
         $gender_list
       );
       $variables['address']['first_name'] = Helper::getFieldValue(
-        $product_order,
+        $order_node,
         'first_name'
       );
       $variables['address']['last_name'] = Helper::getFieldValue(
-        $product_order,
+        $order_node,
         'last_name'
       );
       $variables['address']['street_and_number'] = Helper::getFieldValue(
-        $product_order,
+        $order_node,
         'street_and_number'
       );
       $variables['address']['zip_code'] = Helper::getFieldValue(
-        $product_order,
+        $order_node,
         'zip_code'
       );
       $variables['address']['city'] = Helper::getFieldValue(
-        $product_order,
+        $order_node,
         'city'
       );
       $variables['address']['email'] = Helper::getFieldValue(
-        $product_order,
+        $order_node,
         'email'
       );
       $variables['address']['phone'] = Helper::getFieldValue(
-        $product_order,
+        $order_node,
         'phone'
       );
 
       // Token
-      $variables['token'] = Helper::getFieldValue($product_order, 'smmg_token');
+      $variables['token'] = Helper::getFieldValue($order_node, 'smmg_token');
 
-      $product_orders = [];
+      $order_item = [];
 
       // Get All product_order_unit Nids
-      $product_order_arr = Helper::getFieldValue(
-        $product_order,
+      $order_item_ids = Helper::getFieldValue(
+        $order_node,
         'order_item',
         null,
         true
       );
 
       // load product_order_unit Nodes
-      if ($product_order_arr && count($product_order_arr) > 0) {
+      if ($order_item_ids && count($order_item_ids) > 0) {
         $i = 0;
 
-        foreach ($product_order_arr as $nid) {
-          $product_order_unit = Node::load($nid);
+        foreach ($order_item_ids as $nid) {
+          $order_item_node = Node::load($nid);
           if (
-            $product_order_unit &&
-            $product_order_unit->bundle() == 'product_order_item'
+            $order_item_node &&
+            $order_item_node->bundle() === 'product_order_item'
           ) {
-            $product_orders[$i]['number'] = Helper::getFieldValue(
-              $product_order_unit,
+            $is_download = Helper::getFieldValue(
+              $order_item_node,
+              'is_download'
+            );
+
+            // get Number of CD
+            $order_item[$i]['number_of'] = Helper::getFieldValue(
+              $order_item_node,
               'number_of'
             );
-            $product_orders[$i]['product'] = Helper::getFieldValue(
-              $product_order_unit,
-              'product',
-              $amount_list
+
+            // Product ID
+            $product_id = Helper::getFieldValue(
+              $order_item_node,
+              'product'
             );
+
+            $product = $products[$product_id];
+            $order_item[$i]['id'] = $product_id;
+
+            if ($is_download) {
+              $order_item[$i]['is_download'] = true;
+              $order_item[$i]['name'] = $product['name'] . '(Download)';
+              $order_item[$i]['price'] = $product['price_download'];
+            } else {
+              $order_item[$i]['is_download'] = false;
+              $order_item[$i]['name'] = $product['name'];
+              $order_item[$i]['price'] = $product['price'];
+            }
 
             $i++;
           }
         }
       }
 
-      $variables['product_orders'] = $product_orders;
+      $variables['items'] = $order_item;
 
       // product_order Total
       // ==============================================
       $product_order_total_number = 0;
-      $product_order_total_amount = 0;
 
-      foreach ($product_orders as $product_order) {
-        // Total Number
-        $product_order_total_number += $product_order['number'];
-
-        // Total Amount
-        $row_total = $product_order['number'] * $product_order['product'];
-        $product_order_total_amount += $row_total;
+      // Total Number Of
+      foreach ($order_item as $product_order_item) {
+        $product_order_total_number += $product_order_item['number_of'];
       }
+      $variables['total']['number_of'] = $product_order_total_number;
 
-      $product_order_name_singular = t('product_order');
-      $product_order_name_plural = t('product_orders');
+      // Discount Price
+      $discount_price = Helper::getFieldValue(
+        $order_node,
+        'discount_price'
+      );
+      $variables['total']['discount']['price'] = $discount_price;
 
-      $number_suffix =
-        $product_order_total_number > 1
-          ? $product_order_name_plural
-          : $product_order_name_singular;
+      // Discount Number of
+      $discount_number_of = Helper::getFieldValue(
+        $order_node,
+        'discount_number_of'
+      );
+      $variables['total']['discount']['number_of'] = $discount_number_of;
 
-      // Save Vars
-      $variables['total']['number'] = $product_order_total_number;
-      $variables['total']['product'] = $product_order_total_amount;
+      // Shipping
+      $shipping_total = Helper::getFieldValue(
+        $order_node,
+        'product_shipping_total'
+      );
+      $variables['total']['shipping'] = $shipping_total;
 
-      $variables['number_suffix'] = $number_suffix;
-      $variables['amount_suffix'] = $amount_suffix;
+
+      // Total
+      $product_order_total = Helper::getFieldValue(
+        $order_node,
+        'product_order_total'
+      );
+      $variables['total']['price'] = $product_order_total;
 
       // Title
       $variables['title'] =
@@ -207,23 +232,22 @@ trait ProductOrderTrait
   }
 
   /**
-   * @param $number
    * @param $order_item
+   * @param $products
    * @return array
    * @throws InvalidPluginDefinitionException
    * @throws PluginNotFoundException
-   * @throws Exception
    */
-  public static function newProductOrderItem($order_item): array
+  public static function newOrderItem($order_item, $products): array
   {
     $result = [];
-    $products = self::getAllProductsByID();
 
     $item_nid = $order_item['id'];
     $item_name = $products[$item_nid]['name'];
+    $item_price_shipping = $products[$item_nid]['price_shipping'];
+
     $item_number_of = $order_item['number_of'];
     $item_price = $products[$item_nid]['price'];
-    $item_price_shipping = $products[$item_nid]['price_shipping'];
 
     $title = $item_number_of . ' × ' . $item_name;
 
@@ -239,6 +263,7 @@ trait ProductOrderTrait
           'field_product' => $item_nid,
           'field_price_in_cent' => $item_price * 100,
           'field_shipping_price_in_cent' => $item_price_shipping * 100,
+          'field_is_download' => 0,
         ]);
 
       // Save
@@ -250,12 +275,14 @@ trait ProductOrderTrait
       }
     }
 
-    if ($order_item['download_number_of'] && $order_item['download_number_of'] !== 0) {
-
-      $item_number_of_download = $order_item['download_number_of'];
+    if (
+      $order_item['number_of_download'] &&
+      $order_item['number_of_download'] !== 0
+    ) {
+      $item_number_of_download = $order_item['number_of_download'];
       $item_price_download = $products[$item_nid]['price_download'];
-      $title_download = $item_number_of_download . ' × ' . $item_name . ' (Download) ';
-
+      $title_download =
+        $item_number_of_download . ' × ' . $item_name . ' (Download) ';
 
       $node_download = Drupal::entityTypeManager()
         ->getStorage('node')
@@ -267,6 +294,7 @@ trait ProductOrderTrait
           'field_number_of' => $item_number_of_download,
           'field_product' => $item_nid,
           'field_price_in_cent' => $item_price_download * 100,
+          'field_is_download' => 1,
         ]);
 
       // Save
@@ -293,14 +321,14 @@ trait ProductOrderTrait
     $config = self::getConfig();
 
     // debug
-    dpm($data);
+    $products = self::getAllProductsByID();
 
     $order_items = $data['item'];
 
     // save product_order units
     foreach ($order_items as $order_item) {
       try {
-        $results = self::newProductOrderItem($order_item);
+        $results = self::newOrderItem($order_item, $products);
         foreach ($results as $nid) {
           $order_items[] = $nid;
         }
@@ -359,16 +387,31 @@ trait ProductOrderTrait
     // Items
     $new_order->get('field_order_item')->setValue($order_items);
 
+    // Discount
+    $arr_discount = self::calculateDiscount($data, $products);
+    $discount_in_cent = $arr_discount['price'];
+    $discount_number_of = $arr_discount['number_of'];
+    $discount = $discount_in_cent / 100;
+    $new_order->get('field_discount_price')->setValue($discount);
+    $new_order->get('field_discount_number_of')->setValue($discount_number_of);
 
-    // Price Total
-    $order_total = self::getTotal($data);
-    $new_order->get('field_product_order_total')->setValue($order_total);
+    // Shipping
+    $price_shipping_in_cent = self::calculateShipping($data, $products);
+    $price_shipping = $price_shipping_in_cent / 100;
 
+    $new_order->get('field_product_shipping_total')->setValue($price_shipping);
 
-    // Price Shipping
-    $order_shipping_total = self::getShippingTotal($data);
-    $new_order->get('field_product_shipping_total')->setValue($order_shipping_total);
+    // Total ink. Discount & Shipping
+    $total_in_cent = self::getTotal($data, $products);
+    $total =
+      ($total_in_cent - $discount_in_cent + $price_shipping_in_cent) / 100;
+    $new_order->get('field_product_order_total')->setValue($total);
 
+    dpm($data);
+    dpm($products);
+    dpm('discount:', $discount);
+    dpm('shipping:', $price_shipping);
+    dpm('total:', $total);
 
     // Save
     try {
@@ -563,7 +606,7 @@ trait ProductOrderTrait
           'price' => $price,
           'price_total' => $price,
           'price_download' => $price_download,
-          'price_download_total' => $price_download,
+          'price_total_download' => $price_download,
           'price_shipping' => $price_shipping,
           'producer' => $producer,
           'artist' => $artist,
@@ -590,29 +633,89 @@ trait ProductOrderTrait
     }
 
     return $products_by_nid;
-
   }
 
   /**
    * @param $data
+   * @param $products
+   * @param $shipping
    * @return int
    */
-  public static function getTotal($data): int
+  public static function getTotal($data, $products): int
   {
+    $total = 0;
+    foreach ($data['item'] as $item) {
+      $id = $item['id'];
+      $product = $products[$id];
+      $price = $product['price'] * 100;
+      $price_download = $product['price_download'] * 100;
 
-    $total = 100;
+      // CD
+      $price_total = $item['number_of'] * $price;
+      $total += $price_total;
+
+      // Download
+      $price_total_download = $item['number_of_download'] * $price_download;
+      $total += $price_total_download;
+    }
+
     return $total;
   }
 
   /**
    * @param $data
+   * @param $products
    * @return int
    */
-  public static function getShippingTotal($data): int
+  public static function calculateShipping($data, $products): int
   {
+    $shipping_queue = [0];
 
-    $total = 200;
-    return $total;
+    foreach ($data['item'] as $item) {
+      $id = $item['id'];
+      $product = $products[$id];
+      $price_shipping = $product['price_shipping'] * 100;
+      $price_shipping_total = $item['number_of'] * $price_shipping;
+      $shipping_queue[] = $price_shipping_total;
+    }
+    return max($shipping_queue);
   }
 
+  /**
+   * @param $data
+   * @param $products
+   * @return array
+   */
+  public static function calculateDiscount($data, $products): array
+  {
+    $discount_number_of_all = 0;
+    $discount_price_total_all = 0;
+
+    foreach ($data['item'] as $item) {
+      $id = $item['id'];
+      $product = $products[$id];
+      $price_download = $product['price_download'] * 100;
+
+      // Number of
+      $number_of_cds = $item['number_of'];
+      $number_of_downloads = $item['number_of_download'];
+
+      if ($number_of_cds >= $number_of_downloads) {
+        $discount_number_of = $number_of_downloads;
+      } else {
+        $discount_number_of = $number_of_cds;
+      }
+
+      $price_total_download = $discount_number_of * $price_download;
+
+      $discount_number_of_all += $discount_number_of;
+      $discount_price_total_all += $price_total_download;
+    }
+
+    $discount = [
+      'number_of' => $discount_number_of_all,
+      'price' => $discount_price_total_all,
+    ];
+    return $discount;
+  }
 }

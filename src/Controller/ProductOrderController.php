@@ -42,7 +42,7 @@ class ProductOrderController extends ControllerBase
     $templates = self::getTemplates();
 
     // HTML Email
-    if ($output_mode == 'html') {
+    if ($output_mode === 'html') {
       // Build HTML Content
       $template = file_get_contents($templates['email_html']);
       $build_html = [
@@ -57,7 +57,7 @@ class ProductOrderController extends ControllerBase
     }
 
     // Plaintext
-    if ($output_mode == 'plain') {
+    if ($output_mode === 'plain') {
       // Build Plain Text Content
       $template = file_get_contents($templates['email_plain']);
 

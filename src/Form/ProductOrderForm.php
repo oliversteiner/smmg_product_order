@@ -147,7 +147,6 @@ class ProductOrderForm extends FormBase
       $price_download_shipping = 0;
       $price_download_total = 0;
 
-
       // Product (CD)
       // =====================================
 
@@ -160,10 +159,16 @@ class ProductOrderForm extends FormBase
           '" class="product-order-row">',
       ];
 
-/*      $form['product_order']['item'][$i]['id-cd'] = [
+      /*      $form['product_order']['item'][$i]['id-cd'] = [
         '#theme' => '',
         '#prefix' => '<span>' . $row_nr . '</span>',
       ];*/
+
+      // Input Hidden Product id
+      $form['product_order']['item'][$i]['id'] = [
+        '#type' => 'hidden',
+        '#value' => $id,
+      ];
 
       // Input Number and Times
       $form['product_order']['item'][$i]['number_of'] = [
@@ -177,12 +182,6 @@ class ProductOrderForm extends FormBase
         '#suffix' =>
           '</span>' .
           '<span class="product-order-row-times product-order-times">&times;</span>',
-      ];
-
-      // Input Hidden Product id
-      $form['product_order']['item'][$i]['id'] = [
-        '#type' => 'hidden',
-        '#value' => $id,
       ];
 
       // Name / Product
@@ -226,10 +225,10 @@ class ProductOrderForm extends FormBase
         'name' => $name,
         'id' => $id,
         'download' => false,
-        'price' => $price*100,
-        'priceDownload' => $price_download*100,
-        'priceShipping' => $price_shipping*100,
-        'priceTotal' => $price_total*100,
+        'price' => $price * 100,
+        'priceDownload' => $price_download * 100,
+        'priceShipping' => $price_shipping * 100,
+        'priceTotal' => $price_total * 100,
       ];
 
       // Product Item Download
@@ -247,13 +246,13 @@ class ProductOrderForm extends FormBase
           class="product-order-row">',
       ];
 
-/*      $form['product_order']['item'][$i]['id-download'] = [
+      /*      $form['product_order']['item'][$i]['id-download'] = [
         '#theme' => '',
         '#prefix' => '<span>' . $row_nr . '</span>',
       ];*/
 
       // ## Download Input Number and Times
-      $form['product_order']['item'][$i]['download_number_of'] = [
+      $form['product_order']['item'][$i]['number_of_download'] = [
         '#type' => 'select',
         '#title' => '',
         '#options' => $this->number_options,
@@ -308,9 +307,9 @@ class ProductOrderForm extends FormBase
         'id' => $id,
         'download' => true,
         'downloadFor' => $id,
-        'price' => $price_download*100,
-        'priceShipping' => $price_download_shipping*100,
-        'priceTotal' => $price_download_total*100,
+        'price' => $price_download * 100,
+        'priceShipping' => $price_download_shipping * 100,
+        'priceTotal' => $price_download_total * 100,
       ];
 
       $i++;
@@ -319,7 +318,7 @@ class ProductOrderForm extends FormBase
 
     // Virtual Product Items to  JS
     $form['#attached']['drupalSettings']['productOrder'][
-    'products'
+      'products'
     ] = $virtual_products;
 
     // Discount
@@ -519,8 +518,6 @@ class ProductOrderForm extends FormBase
       '#prefix' => '<div class="form-group">',
       '#suffix' => '</div>',
     ];
-
-
 
     //
     return $form;

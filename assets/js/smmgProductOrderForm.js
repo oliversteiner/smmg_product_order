@@ -2,7 +2,7 @@
   Drupal.behaviors.smmgProductOrderFormBehavior = {
     Order: {
       discountPrice: 0,
-      discountNumber: 0,
+      discountNumberOff: 0,
       priceTotal: 0,
       priceShippingTotal: 0,
       products: [],
@@ -47,7 +47,7 @@
       // Discount Total
       for (let i = 0; i < products.length; i++) {
         discountPrice += products[i].discountPrice;
-        discountNumber += products[i].discountNumber;
+        discountNumber += products[i].discountNumberOff;
       }
 
       // add Shipping
@@ -61,7 +61,7 @@
 
       const order = {
         discountPrice: discountPrice,
-        discountNumber: discountNumber,
+        discountNumberOff: discountNumberOff,
         priceTotal: priceTotal,
         priceShipping: priceShipping,
       };
@@ -89,13 +89,13 @@
       $priceTotal.text(this.convertCents(order.priceTotal));
       $shippingTotal.text(this.convertCents(order.priceShipping));
 
-      if (order.discountNumber === 1) {
+      if (order.discountNumberOff === 1) {
         $discountRow.show();
-        $discountNumber.text(order.discountNumber + ' × Download inkl.');
+        $discountNumber.text(order.discountNumberOff + ' × Download inkl.');
         $discountPrice.text('-' + this.convertCents(order.discountPrice));
-      } else if (order.discountNumber > 1) {
+      } else if (order.discountNumberOff > 1) {
         $discountRow.show();
-        $discountNumber.text(order.discountNumber + ' × Downloads inkl.');
+        $discountNumber.text(order.discountNumberOff + ' × Downloads inkl.');
         $discountPrice.text('-' + this.convertCents(order.discountPrice));
       } else {
         $discountRow.hide();
@@ -204,7 +204,7 @@
       //
 
       for (let i = 0; i < products.length; i++) {
-        products[i].discountNumber = 0;
+        products[i].discountNumberOff = 0;
         products[i].discountPrice = 0;
 
         if (products[i].downloadAvailable) {
@@ -220,9 +220,9 @@
             discountNumber = numberOfCDs;
           }
 
-          discountPrice = discountNumber * priceDownload;
+          discountPrice = discountNumberOff * priceDownload;
 
-          products[i].discountNumber = discountNumber;
+          products[i].discountNumberOff = discountNumberOff;
           products[i].discountPrice = discountPrice;
         }
 

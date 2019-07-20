@@ -1,21 +1,26 @@
 <div class="product_order-receipt ">
 
+
+  {{ dd(items) }}
+  {{ dd(total) }}
+
   <div class="product_order-list">
     <h2>Order</h2>
 
     <div id="product_order-table-header" class="product_order-table-header">
       <span class="product_order-table-number">Number</span>
       <span class="product_order-table-times"></span>
-      <span class="product_order-table-amount">Amount</span>
+      <span class="product_order-table-amount">Produkt</span>
       <span class="product_order-table-item"></span>
     </div>
 
-    {% for product_order in product_orders %}
+    {% for item in items %}
 
       <div class="product_order-table-row-receipt">
-        <span class="product_order-table-number">{{ product_order.number }}</span>
+        <span class="product_order-table-number">{{ item.number_of }}</span>
         <span class="product_order-table-times">&times;</span>
-        <span class="product_order-table-amount">{{ product_order.amount }}</span>
+        <span class="product_order-table-name">{{ item.name }}</span>
+        <span class="product_order-table-price">{{ item.price }}</span>
         <span class="product_order-table-item">{{ amount_suffix }}</span>
       </div>
 
@@ -23,9 +28,9 @@
 
     <div id="product_order-table-total" class="product_order-table-total product_order-table-total-receipt">
       <span class="product_order-table-total-total">Total:</span>
-      <span class="product_order-table-total-number">{{ total.number }}</span>
+      <span class="product_order-table-total-number">{{ total.number_of }}</span>
       <span class="product_order-table-total-number-label">{{ number_suffix }}</span>
-      <span class="product_order-table-total-amount">{{ total.amount }}</span>
+      <span class="product_order-table-total-amount">{{ total.price }}</span>
       <span class="product_order-table-total-item">{{ amount_suffix }}</span>
     </div>
   </div>
