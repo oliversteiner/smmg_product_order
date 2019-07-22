@@ -12,6 +12,7 @@ use Drupal\node\Entity\Node;
 use Drupal\small_messages\Utility\Helper;
 use Drupal\smmg_product_order\Controller\ProductOrderController;
 use Drupal\smmg_product_order\Utility\ProductOrderTrait;
+use Exception;
 
 /**
  * Implements OrderForm form FormBase.
@@ -611,31 +612,17 @@ class ProductOrderForm extends FormBase
   {
     $values = $form_state->getValues();
 
-    // generate Order Item Array
-
-    // Token
-    $token = $values['token'];
-    $arg = ['token' => $token];
-
     // Send product_order Order
     try {
-      $result = ProductOrderController::newOrder($values);
+      $nid = ProductOrderController::newOrder($values);
+      $token = $values['token'];
+      $arg = ['nid' => $nid, 'token' => $token];
 
-      if ($result) {
-        if ($result['status']) {
-          $arg['product_order_nid'] = (int) $result['nid'];
-        } else {
-          // Error on create new product_order Order
-          if ($result['message']) {
-            $this->messenger()->addMessage($result['message'], 'error');
-          }
-        }
-      }
-
-      // Go to  Thank You Form
-      $form_state->setRedirect('smmg_product_order.product_order.thanks', $arg);
+      // Go to Thank You Form
+      $form_state->setRedirect('smmg_product_order.thank_you', $arg);
     } catch (InvalidPluginDefinitionException $e) {
     } catch (PluginNotFoundException $e) {
+    } catch (Exception $e) {
     }
   }
 
@@ -643,7 +630,7 @@ class ProductOrderForm extends FormBase
    * @param $cents
    * @return string
    */
-  public function convertCents($cents)
+  public function convertCents($cents): string
   {
     return number_format($cents / 100, 2, '.', ' ');
   }

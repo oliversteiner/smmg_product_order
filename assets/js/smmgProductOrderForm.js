@@ -31,7 +31,7 @@
       console.log('updateTotal');
 
       let discountPrice = 0;
-      let discountNumber = 0;
+      let discountNumberOff = 0;
       let priceTotal = 0;
       let priceShipping = 0;
 
@@ -47,7 +47,7 @@
       // Discount Total
       for (let i = 0; i < products.length; i++) {
         discountPrice += products[i].discountPrice;
-        discountNumber += products[i].discountNumberOff;
+        discountNumberOff += products[i].discountNumberOff;
       }
 
       // add Shipping
@@ -80,7 +80,7 @@
       const $priceTotal = $('.product-order-total-price-total');
       const $shippingTotal = $('.product-order-total-shipping-price');
       const $discountPrice = $('.product-order-total-discount-price');
-      const $discountNumber = $('.product-order-discount-number');
+      const $discountNumberOff = $('.product-order-discount-number');
       const $discountRow = $('.product-order-row-discount');
 
       // display discount
@@ -91,11 +91,11 @@
 
       if (order.discountNumberOff === 1) {
         $discountRow.show();
-        $discountNumber.text(order.discountNumberOff + ' × Download inkl.');
+        $discountNumberOff.text(order.discountNumberOff + ' × Download inkl.');
         $discountPrice.text('-' + this.convertCents(order.discountPrice));
       } else if (order.discountNumberOff > 1) {
         $discountRow.show();
-        $discountNumber.text(order.discountNumberOff + ' × Downloads inkl.');
+        $discountNumberOff.text(order.discountNumberOff + ' × Downloads inkl.');
         $discountPrice.text('-' + this.convertCents(order.discountPrice));
       } else {
         $discountRow.hide();
@@ -211,13 +211,13 @@
           const numberOfCDs = products[i].numberOf;
           const numberOfDownloads = products[i].numberOf_download;
           const priceDownload = products[i].priceDownload;
-          let discountNumber = 0;
+          let discountNumberOff = 0;
           let discountPrice = 0;
 
           if (numberOfCDs >= numberOfDownloads) {
-            discountNumber = numberOfDownloads;
+            discountNumberOff = numberOfDownloads;
           } else {
-            discountNumber = numberOfCDs;
+            discountNumberOff = numberOfCDs;
           }
 
           discountPrice = discountNumberOff * priceDownload;

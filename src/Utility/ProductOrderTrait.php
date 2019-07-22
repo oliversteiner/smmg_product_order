@@ -16,21 +16,17 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 trait ProductOrderTrait
 {
   /**
+   * return product order with order items and total prices for TWIG
+   *
    * @param $product_order_nid
-   * @param null $member_nid
-   * @param null $token
    * @return array
    * @throws Exception
    */
   public static function productOrderVariables(
-    $product_order_nid,
-    $token = null
+    $product_order_nid
   ): array
   {
-    $config = self::getConfig();
     $products = self::getAllProductsByID();
-
-    $amount_suffix = $config->get('suffix');
 
     $variables = [];
     $variables['module'] = self::getModuleName();
@@ -67,11 +63,6 @@ trait ProductOrderTrait
 
     if ($order_node && $order_node->bundle() === 'product_order') {
       // check token
-      $node_token = Helper::getFieldValue($order_node, 'smmg_token');
-
-      if ($token != $node_token) {
-        // throw new AccessDeniedHttpException();
-      }
 
       // Address
       // ==============================================
@@ -138,7 +129,7 @@ trait ProductOrderTrait
             );
 
             // get Number of CD
-            $order_item[$i]['number_of'] = Helper::getFieldValue(
+            $number_of = Helper::getFieldValue(
               $order_item_node,
               'number_of'
             );
@@ -149,17 +140,21 @@ trait ProductOrderTrait
               'product'
             );
 
+            // Get Product
             $product = $products[$product_id];
+
+            // build Twig Variables
             $order_item[$i]['id'] = $product_id;
+            $order_item[$i]['number_of'] = $number_of;
+            $order_item[$i]['price'] = $product['price'];
+            $order_item[$i]['price_total'] = $number_of * $product['price'];
 
             if ($is_download) {
               $order_item[$i]['is_download'] = true;
-              $order_item[$i]['name'] = $product['name'] . '(Download)';
-              $order_item[$i]['price'] = $product['price_download'];
+              $order_item[$i]['name'] = $product['name'] . ' (Download)';
             } else {
               $order_item[$i]['is_download'] = false;
               $order_item[$i]['name'] = $product['name'];
-              $order_item[$i]['price'] = $product['price'];
             }
 
             $i++;
@@ -177,28 +172,28 @@ trait ProductOrderTrait
       foreach ($order_item as $product_order_item) {
         $product_order_total_number += $product_order_item['number_of'];
       }
-      $variables['total']['number_of'] = $product_order_total_number;
+      $variables['order']['number_of'] = $product_order_total_number;
 
       // Discount Price
       $discount_price = Helper::getFieldValue(
         $order_node,
         'discount_price'
       );
-      $variables['total']['discount']['price'] = $discount_price;
+      $variables['order']['discount']['price'] = $discount_price;
 
       // Discount Number of
       $discount_number_of = Helper::getFieldValue(
         $order_node,
         'discount_number_of'
       );
-      $variables['total']['discount']['number_of'] = $discount_number_of;
+      $variables['order']['discount']['number_of'] = $discount_number_of;
 
       // Shipping
       $shipping_total = Helper::getFieldValue(
         $order_node,
         'product_shipping_total'
       );
-      $variables['total']['shipping'] = $shipping_total;
+      $variables['order']['shipping']['price'] = $shipping_total;
 
 
       // Total
@@ -206,7 +201,7 @@ trait ProductOrderTrait
         $order_node,
         'product_order_total'
       );
-      $variables['total']['price'] = $product_order_total;
+      $variables['order']['total']['price'] = $product_order_total;
 
       // Title
       $variables['title'] =
@@ -219,19 +214,12 @@ trait ProductOrderTrait
     return $variables;
   }
 
-  /**
-   * @param $nid
-   * @param $token
-   * @throws Exception
-   */
-  private static function sendNotificationMail($nid, $token): void
-  {
-    $data = self::productOrderVariables($nid, $token);
-
-    self::sendProductOrderMail($data);
-  }
 
   /**
+   *
+   * save new Order Item as node in DB
+   * returns Array with new generated Node IDs
+   *
    * @param $order_item
    * @param $products
    * @return array
@@ -282,7 +270,7 @@ trait ProductOrderTrait
       $item_number_of_download = $order_item['number_of_download'];
       $item_price_download = $products[$item_nid]['price_download'];
       $title_download =
-        $item_number_of_download . ' × ' . $item_name . ' (Download) ';
+        $item_number_of_download . ' × ' . $item_name . '  (Download) ';
 
       $node_download = Drupal::entityTypeManager()
         ->getStorage('node')
@@ -310,41 +298,28 @@ trait ProductOrderTrait
   }
 
   /**
+   *
+   * saves new Order in DB
+   *
+   *
    * @param array $data
-   * @return array
    * @throws InvalidPluginDefinitionException
    * @throws PluginNotFoundException
-   * @throws Exception
    */
-  public static function newOrder(array $data): array
+  public static function newOrder(array $data): int
   {
-    $config = self::getConfig();
-
-    // debug
-    $products = self::getAllProductsByID();
-
-    $order_items = $data['item'];
-
-    // save product_order units
-    foreach ($order_items as $order_item) {
-      try {
-        $results = self::newOrderItem($order_item, $products);
-        foreach ($results as $nid) {
-          $order_items[] = $nid;
-        }
-      } catch (InvalidPluginDefinitionException $e) {
-      } catch (PluginNotFoundException $e) {
-      }
-    }
+    // Token
+    $token = $data['token'];
 
     // Origin
     $origin = 'product_order';
     $origin_tid = Helper::getOrigin($origin);
 
-    // Token
-    $token = $data['token'];
+    // Title
+    // TODO get Title from Config page
+    $title = 'Product Order';
 
-    // Fieldset address
+    //  address
     $gender = $data['gender'];
     $first_name = $data['first_name'];
     $last_name = $data['last_name'];
@@ -354,13 +329,6 @@ trait ProductOrderTrait
     $email = $data['email'];
     $phone = $data['phone'];
 
-    $output = [
-      'status' => false,
-      'mode' => 'save',
-      'nid' => false,
-      'message' => '',
-    ];
-    $title = 'Album Bestellung "Musik mit Herz"';
 
     $storage = Drupal::entityTypeManager()->getStorage('node');
     $new_order = $storage->create([
@@ -385,6 +353,23 @@ trait ProductOrderTrait
     ]);
 
     // Items
+
+    // get all Products in array with id as key
+    $products = self::getAllProductsByID();
+    $order_items = $data['item'];
+
+    // save product_order units
+    foreach ($order_items as $order_item) {
+      try {
+        $results = self::newOrderItem($order_item, $products);
+        foreach ($results as $nid) {
+          $order_items[] = $nid;
+        }
+      } catch (InvalidPluginDefinitionException $e) {
+      } catch (PluginNotFoundException $e) {
+      }
+    }
+
     $new_order->get('field_order_item')->setValue($order_items);
 
     // Discount
@@ -398,7 +383,6 @@ trait ProductOrderTrait
     // Shipping
     $price_shipping_in_cent = self::calculateShipping($data, $products);
     $price_shipping = $price_shipping_in_cent / 100;
-
     $new_order->get('field_product_shipping_total')->setValue($price_shipping);
 
     // Total ink. Discount & Shipping
@@ -407,31 +391,17 @@ trait ProductOrderTrait
       ($total_in_cent - $discount_in_cent + $price_shipping_in_cent) / 100;
     $new_order->get('field_product_order_total')->setValue($total);
 
-    dpm($data);
-    dpm($products);
-    dpm('discount:', $discount);
-    dpm('shipping:', $price_shipping);
-    dpm('total:', $total);
-
     // Save
     try {
       $new_order->save();
       $new_order_nid = $new_order->id();
 
-      // if OK
-      if ($new_order_nid) {
-        $message = t('Order successfully saved');
-        $output['message'] = $message;
-        $output['status'] = true;
-        $output['nid'] = $new_order_nid;
-
-        self::sendNotificationMail($new_order_nid, $token);
-      }
+      self::sendEmail($new_order_nid, $token);
+      return $new_order_nid;
     } catch (EntityStorageException $e) {
     } catch (Exception $e) {
     }
-
-    return $output;
+    return 0;
   }
 
   /**
@@ -453,21 +423,6 @@ trait ProductOrderTrait
     return Helper::getTemplates($module, $template_names);
   }
 
-  /**
-   * @param $module
-   * @param $data
-   * @param $templates
-   * @return bool
-   */
-  public static function sendProductOrderMail($data): bool
-  {
-    $module = self::getModuleName();
-    $templates = self::getTemplates();
-
-    // Email::sendNotificationMail($module, $data, $templates);
-
-    return true;
-  }
 
   /**
    * @return Drupal\Core\Config\ImmutableConfig
@@ -504,15 +459,18 @@ trait ProductOrderTrait
   /**
    * @return array
    *
-   *
-   *
    * -- name
+   * -- id
+   * -- number_of
+   * -- number_of_download
    * -- available
    * -- category
    * -- cover
    * -- description
    * -- price
+   * -- price_total
    * -- price_download
+   * -- price_total_download
    * -- price_shipping
    * -- producer
    * -- artist
@@ -636,9 +594,9 @@ trait ProductOrderTrait
   }
 
   /**
+   * return total price product in cent
    * @param $data
    * @param $products
-   * @param $shipping
    * @return int
    */
   public static function getTotal($data, $products): int
@@ -663,6 +621,8 @@ trait ProductOrderTrait
   }
 
   /**
+   * return shipping price in cent
+   *
    * @param $data
    * @param $products
    * @return int
@@ -682,6 +642,8 @@ trait ProductOrderTrait
   }
 
   /**
+   * return discount price in cent
+   *
    * @param $data
    * @param $products
    * @return array

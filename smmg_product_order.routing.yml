@@ -30,53 +30,39 @@ smmg_product_order.product_order:
 #
 # product_order - Thank You
 #
-smmg_product_order.product_order.thanks:
-  path: 'product_order/thank-you/{product_order_nid}/{token}/{member_nid}'
+smmg_product_order.thank_you:
+  path: 'product_order/thank-you/{nid}/{token}'
   defaults:
     _controller: '\Drupal\smmg_product_order\Controller\ProductOrderController::thankYouPage'
     _title: 'Thank You.'
-    product_order_nid: null
-    token: null
-    member_nid: null
+    nid: null
+    token: false
   requirements:
     _permission: 'access content'
 #
 # product_order - Email Sandbox // 1594
 #
-smmg_product_order.product_order_sandbox_email:
-  path: 'product_order/sandbox/{product_order_nid}/{token}/{output_mode}'
+smmg_product_order.email_template_test:
+  path: 'product_order/email_template_test/{nid}/{token}/{output_mode}'
   defaults:
-    _controller: '\Drupal\smmg_product_order\Controller\ProductOrderController::sandboxEmail'
+    _controller: '\Drupal\smmg_product_order\Controller\ProductOrderController::emailTemplateTest'
     _title: 'product_order Email Test'
-    product_order_nid: null
-    token: null
+    nid: null
+    token: false
     output_mode: 'html'
   requirements:
     _permission: 'access content'
 
 
 #
-# product_order - Email Sandbox // 1594
-#
-smmg_product_order.product_order_sandbox_send_email:
-  path: 'product_order/send/{product_order_nid}/{token}'
-  defaults:
-    _controller: '\Drupal\smmg_product_order\Controller\ProductOrderController::sandboxSendEmail'
-    _title: 'product_order Email Test'
-    product_order_nid: null
-    token: null
-  requirements:
-    _permission: 'access content'
-
-#
 # product_order - Send Thank You Email
 #
-smmg_product_order.product_order_send_email:
-  path: 'product_order/send/{product_order_nid}/{token}'
+smmg_product_order.send_email:
+  path: 'product_order/send/{nid}/{token}'
   defaults:
     _controller: '\Drupal\smmg_product_order\Controller\ProductOrderController::sendEmail'
-    _title: 'product_order Email'
-    product_order_nid: null
-    token: null
+    _title: 'Send Email'
+    nid: null
+    token: false
   requirements:
     _permission: 'access content'

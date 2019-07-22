@@ -1,42 +1,56 @@
-<div class="product_order-receipt ">
+<div class="product-order-receipt ">
 
 
-  {{ dd(items) }}
-  {{ dd(total) }}
-
-  <div class="product_order-list">
+  <div class="product-order-list">
     <h2>Order</h2>
 
-    <div id="product_order-table-header" class="product_order-table-header">
-      <span class="product_order-table-number">Number</span>
-      <span class="product_order-table-times"></span>
-      <span class="product_order-table-amount">Produkt</span>
-      <span class="product_order-table-item"></span>
+    <div class="product-order-row product-order-header">
     </div>
 
     {% for item in items %}
-
-      <div class="product_order-table-row-receipt">
-        <span class="product_order-table-number">{{ item.number_of }}</span>
-        <span class="product_order-table-times">&times;</span>
-        <span class="product_order-table-name">{{ item.name }}</span>
-        <span class="product_order-table-price">{{ item.price }}</span>
-        <span class="product_order-table-item">{{ amount_suffix }}</span>
+      <div class="product-order-row">
+        <span class="product-order-number">{{ item.number_of }}</span>
+        <span class="product-order-times">&times;</span>
+        <span class="product-order-name">{{ item.name }}</span>
+        <span class="product-order-price">{{ item.price|number_format(2) }}</span>
+        <span class="product-order-price">{{ item.price_total|number_format(2) }}</span>
       </div>
 
     {% endfor %}
 
-    <div id="product_order-table-total" class="product_order-table-total product_order-table-total-receipt">
-      <span class="product_order-table-total-total">Total:</span>
-      <span class="product_order-table-total-number">{{ total.number_of }}</span>
-      <span class="product_order-table-total-number-label">{{ number_suffix }}</span>
-      <span class="product_order-table-total-amount">{{ total.price }}</span>
-      <span class="product_order-table-total-item">{{ amount_suffix }}</span>
+    {% if(order.discount.price) %}
+      {# Discount #}
+      <div class="product-order-row product-order-row-discount">
+        <span class="product-order-number"></span>
+        <span class="product-order-times"></span>
+        <span class="product-order-name">Discount</span>
+        <span class="product-order-price"></span>
+        <span class="product-order-price">-{{ order.discount.price|number_format(2) }}</span>
+      </div>
+    {% endif %}
+
+    {# Shipping #}
+    <div class="product-order-row product-order-row-shipping">
+      <span class="product-order-number"></span>
+      <span class="product-order-times"></span>
+      <span class="product-order-name">Shipping</span>
+      <span class="product-order-price"></span>
+      <span class="product-order-price">{{ order.shipping.price|number_format(2) }}</span>
+    </div>
+
+    {# Price Total #}
+    <div class="product-order-row product-order-row-total">
+      <span class="product-order-number"></span>
+      <span class="product-order-times"></span>
+      <span class="product-order-name">Total</span>
+      <span class="product-order-price"></span>
+      <span class="product-order-price">{{ order.total.price|number_format(2) }}</span>
+
     </div>
   </div>
 
 
-  <div class="product_order-address">
+  <div class="product-order-address">
     <h2>Delivery Address</h2>
 
     <address>
@@ -51,13 +65,13 @@
 
     </address>
   </div>
-  <div class="product_order-info">
+  <div class="product-order-info">
     <p>Thank you very much for your order.</p>
   </div>
 
-  <div class="product_order-info">
-    <a href="{{ path('smmg_product_order.product_order_send_email', {'product_order_nid': id,  'token': token}) }}"
-            role="button">Send email again
+  <div class="product-order-info">
+    <a href="{{ path('smmg_product_order.send_email', {'nid': id,  'token': token}) }}"
+       role="button">Send email again
     </a>
   </div>
 </div>

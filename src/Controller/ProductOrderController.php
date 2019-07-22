@@ -20,26 +20,22 @@ class ProductOrderController extends ControllerBase
   }
 
   /**
-   * @param $product_order_nid
+   * @param $nid
    * @param null $token
    * @param string $output_mode
    * @return array|bool
+   * @throws Exception
    */
-  public function sandboxEmail(
-    $product_order_nid,
-    $token = null,
-    $output_mode = 'html'
-  ) {
-    $build = false;
+  public function emailTemplateTest($nid, $token, $output_mode = 'html')
+  {
+    // get Data Variables
+    $variables = self::checkTokenGetData($nid, $token);
 
-    // Get Content
-    try {
-      $data = self::productOrderVariables($product_order_nid, $token);
-    } catch (Exception $e) {
-    }
-    $data['sandbox'] = true;
-
+    // Get Email Templates
     $templates = self::getTemplates();
+
+    // Build HTML
+    $build = false;
 
     // HTML Email
     if ($output_mode === 'html') {
@@ -49,10 +45,9 @@ class ProductOrderController extends ControllerBase
         'description' => [
           '#type' => 'inline_template',
           '#template' => $template,
-          '#context' => $data,
+          '#context' => $variables,
         ],
       ];
-
       $build = $build_html;
     }
 
@@ -60,15 +55,13 @@ class ProductOrderController extends ControllerBase
     if ($output_mode === 'plain') {
       // Build Plain Text Content
       $template = file_get_contents($templates['email_plain']);
-
       $build_plain = [
         'description' => [
           '#type' => 'inline_template',
           '#template' => $template,
-          '#context' => $data,
+          '#context' => $variables,
         ],
       ];
-
       $build = $build_plain;
     }
 
@@ -76,60 +69,32 @@ class ProductOrderController extends ControllerBase
   }
 
   /**
-   * @param $product_order_nid
+   * @param $nid
    * @param $token
-   * @param null $member_nid
    * @return array
    * @throws Exception
    */
-  public function thankYouPage(
-    $product_order_nid,
-    $token,
-    $member_nid = null
-  ): array {
-    // Make sure you don't trust the URL to be safe! Always check for exploits.
-    if ($product_order_nid != false && !is_numeric($product_order_nid)) {
-      // We will just show a standard "access denied" page in this case.
-      throw new AccessDeniedHttpException();
-    }
+  public function thankYouPage($nid, $token): array
+  {
 
-    if ($member_nid != false && !is_numeric($member_nid)) {
-      throw new AccessDeniedHttpException();
-    }
+    // get Data Variables
+    $variables = self::checkTokenGetData($nid, $token);
 
-    if ($token == false) {
-      throw new AccessDeniedHttpException();
-    }
-
+    // Get Email Templates
     $templates = self::getTemplates();
+
+    // Build HTML
     $template = file_get_contents($templates['thank_you']);
     $build = [
       'description' => [
         '#type' => 'inline_template',
         '#template' => $template,
-        '#attached' => ['library' => ['smmg_product_order/smmg_product_order.main']],
-        '#context' => self::productOrderVariables(
-          $product_order_nid,
-          $member_nid,
-          $token
-        ),
+        '#attached' => [
+          'library' => ['smmg_product_order/smmg_product_order.main'],
+        ],
+        '#context' => $variables,
       ],
     ];
-    return $build;
-  }
-
-  public function sandboxSendEmail(
-    $product_order_nid,
-    $token = null,
-    $output_mode = 'html'
-  ) {
-    $build = $this->sandboxEmail(
-      $product_order_nid,
-      $token = null,
-      $output_mode = 'html'
-    );
-
-  //  self::sendNotivicationMailNewproduct_order($product_order_nid, $token);
 
     return $build;
   }
@@ -137,12 +102,48 @@ class ProductOrderController extends ControllerBase
   /**
    * @param $nid
    * @param $token
+   * @throws Exception
    */
-  public function sendEmail($nid, $token): void
+  public static function sendEmail($nid, $token): void
   {
+
+    // get Data Variables
+    $variables = self::checkTokenGetData($nid, $token);
+
+
     try {
-      self::sendNotificationMail($nid, $token);
+      $module = self::getModuleName();
+      $templates = self::getTemplates();
+
+      // Email::sendNotificationMail($module, $variables, $templates);
     } catch (Exception $e) {
     }
+  }
+
+  /**
+   * @param $nid
+   * @param $token
+   * @return array | boolean
+   * @throws Exception
+   */
+  public static function checkTokenGetData($nid, $token){
+    // Make sure you don't trust the URL to be safe! Always check for exploits.
+    if (!$nid || !is_numeric($nid)) {
+
+      // We will just show a standard "access denied" page in this case.
+      throw new AccessDeniedHttpException();
+    }
+
+    // get Data Variables
+    $variables = self::productOrderVariables($nid);
+
+    // Check genuine Token
+    if (!$token || $token !== $variables['token']) {
+
+      // We will just show a standard "access denied" page in this case.
+      throw new AccessDeniedHttpException();
+    }
+
+    return $variables ?: false;
   }
 }
