@@ -6,7 +6,7 @@ smmg_product_order.settings:
   path: '/admin/config/small_messages/smmg_product_order'
   defaults:
     _form: '\Drupal\smmg_product_order\Form\ProductOrderSettingsForm'
-    _title: 'product_order Settings'
+    _title: 'Product order Settings'
   requirements:
     _permission: 'administer site configuration'
 

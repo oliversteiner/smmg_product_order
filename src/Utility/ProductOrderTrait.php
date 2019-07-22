@@ -27,8 +27,11 @@ trait ProductOrderTrait
   ): array
   {
     $products = self::getAllProductsByID();
+    $config = self::getConfig();
+    $title = $config->get('title');
 
     $variables = [];
+    $variables['title'] = $title;
     $variables['module'] = self::getModuleName();
 
     $variables['address']['gender'] = '';
@@ -204,7 +207,8 @@ trait ProductOrderTrait
       $variables['order']['total']['price'] = $product_order_total;
 
       // Title
-      $variables['title'] =
+      $variables['order']['title'] =
+        $title .
         ' - ' .
         $variables['address']['first_name'] .
         ' ' .
