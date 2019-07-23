@@ -81,16 +81,16 @@ function smmg_product_order_form_alter(&$form, FormStateInterface $form_state, $
 function smmg_product_order_inline_entity_form_table_fields_alter(&$fields, $context)
 {
 
-  $product_order_unit = false;
+  $product_order_item = false;
 
   foreach ($context ['allowed_bundles'] as $bundle) {
 
     if ($bundle === 'product_order_item') {
-      $product_order_unit = TRUE;
+      $product_order_item = TRUE;
     }
   }
 
-  if ($product_order_unit) {
+  if ($product_order_item) {
 
     // This line removes the title field. you're looking to do this, just with the status instead of title field
     unset($fields['title'], $fields['label'], $fields['status']);
@@ -98,7 +98,7 @@ function smmg_product_order_inline_entity_form_table_fields_alter(&$fields, $con
     // Add product_order Fields
 
     // product_order Number
-    $fields['field_product_order_number_of'] = [
+    $fields['field_number_of'] = [
       'type' => 'field',
       'label' => t('Number'),
       'weight' => 100
@@ -113,6 +113,14 @@ function smmg_product_order_inline_entity_form_table_fields_alter(&$fields, $con
         'type' => 'entity_reference_label',
         'settings' => ['link' => FALSE],
       ],
+    ];
+
+    //  product_order Amount
+    $fields['field_price_in_cent'] = [
+      'type' => 'field',
+      'label' => t('Price (Cent)'),
+      'weight' => 102,
+
     ];
   }
 
@@ -176,18 +184,17 @@ function product_order_title_builder($entity_type, NodeInterface $node, $form, F
 {
   $config = Drupal::config('smmg_product_order.settings');
   $product_order_name = $config->get('title');
-
-  $first_name = '';
-  $last_name = '';
+  $title = $product_order_name;
 
   if ($node !== null) {
     $first_name = Helper::getFieldValue($node, 'first_name');
     $last_name = Helper::getFieldValue($node, 'last_name');
+    $title .= ' - '.$last_name . ' ' . $first_name ;
   }
 
 
 // Build Title
-  $node->setTitle($product_order_name . ' - ' . $first_name . ' ' . $last_name);
+  $node->setTitle($title);
 }
 
 /**

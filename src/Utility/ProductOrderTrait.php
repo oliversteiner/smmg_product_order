@@ -307,6 +307,7 @@ trait ProductOrderTrait
    *
    *
    * @param array $data
+   * @return int
    * @throws InvalidPluginDefinitionException
    * @throws PluginNotFoundException
    */
