@@ -481,88 +481,7 @@ trait ProductOrderTrait
       $entity_list = Node::loadMultiple($nids);
 
       foreach ($entity_list as $nid => $node) {
-        // name
-        $name = $node->getTitle();
-
-        // available
-        $field_name = 'product_available';
-        $available = Helper::getFieldValue($node, $field_name);
-
-        // category
-        $field_name = 'product_category';
-        $term_list = 'product_category';
-        $value = Helper::getFieldValue($node, $field_name, $term_list);
-        $category = $value;
-
-        // cover
-        $field_name = 'product_cover';
-        $value = Helper::getFieldValue($node, $field_name);
-        $cover = $value;
-
-        // description
-        $field_name = 'product_description';
-        $value = Helper::getFieldValue($node, $field_name);
-        $description = $value;
-
-        // price
-        $field_name = 'product_price';
-        $value = Helper::getFieldValue($node, $field_name);
-        $price = $value;
-
-        // price_download
-        $field_name = 'product_price_download';
-        $value = Helper::getFieldValue($node, $field_name);
-        $price_download = $value;
-
-        // price_shipping
-        $field_name = 'product_price_shipping';
-        $value = Helper::getFieldValue($node, $field_name);
-        $price_shipping = $value;
-
-        // producer
-        $field_name = 'product_producer';
-        $term_list = 'track_producer';
-        $value = Helper::getFieldValue($node, $field_name, $term_list);
-        $producer = $value;
-
-        // $artist
-        $field_name = 'track_artist';
-        $term_list = 'track_artist';
-        $value = Helper::getFieldValue($node, $field_name, $term_list);
-        $artist = $value;
-
-        // author
-        $field_name = 'track_author';
-        $term_list = 'track_author';
-        $value = Helper::getFieldValue($node, $field_name, $term_list);
-        $author = $value;
-
-        // copyright
-        $field_name = 'track_copyright';
-        $term_list = 'track_copyright';
-        $value = Helper::getFieldValue($node, $field_name, $term_list);
-        $copyright = $value;
-
-        // write returns
-        $products[] = [
-          'name' => $name,
-          'id' => $nid,
-          'number_of' => 0,
-          'number_of_download' => 0,
-          'available' => $available,
-          'category' => $category,
-          'cover' => $cover,
-          'description' => $description,
-          'price' => $price,
-          'price_total' => $price,
-          'price_download' => $price_download,
-          'price_total_download' => $price_download,
-          'price_shipping' => $price_shipping,
-          'producer' => $producer,
-          'artist' => $artist,
-          'author' => $author,
-          'copyright' => $copyright,
-        ];
+     $products[] = self::getProductVariables($node);
       }
     }
 
@@ -671,5 +590,94 @@ trait ProductOrderTrait
       'price' => $discount_price_total_all,
     ];
     return $discount;
+  }
+
+  public static function getProductVariables($node): array
+  {
+    // name
+    $id = $node->id();
+
+    // name
+    $name = $node->getTitle();
+
+    // available
+    $field_name = 'product_available';
+    $available = Helper::getFieldValue($node, $field_name);
+
+    // category
+    $field_name = 'product_category';
+    $term_list = 'product_category';
+    $value = Helper::getFieldValue($node, $field_name, $term_list);
+    $category = $value;
+
+    // cover
+    $field_name = 'product_cover';
+    $value = Helper::getFieldValue($node, $field_name);
+    $cover = $value;
+
+    // description
+    $field_name = 'product_description';
+    $value = Helper::getFieldValue($node, $field_name);
+    $description = $value;
+
+    // price
+    $field_name = 'product_price';
+    $value = Helper::getFieldValue($node, $field_name);
+    $price = $value;
+
+    // price_download
+    $field_name = 'product_price_download';
+    $value = Helper::getFieldValue($node, $field_name);
+    $price_download = $value;
+
+    // price_shipping
+    $field_name = 'product_price_shipping';
+    $value = Helper::getFieldValue($node, $field_name);
+    $price_shipping = $value;
+
+    // producer
+    $field_name = 'product_producer';
+    $term_list = 'track_producer';
+    $value = Helper::getFieldValue($node, $field_name, $term_list);
+    $producer = $value;
+
+    // $artist
+    $field_name = 'track_artist';
+    $term_list = 'track_artist';
+    $value = Helper::getFieldValue($node, $field_name, $term_list);
+    $artist = $value;
+
+    // author
+    $field_name = 'track_author';
+    $term_list = 'track_author';
+    $value = Helper::getFieldValue($node, $field_name, $term_list);
+    $author = $value;
+
+    // copyright
+    $field_name = 'track_copyright';
+    $term_list = 'track_copyright';
+    $value = Helper::getFieldValue($node, $field_name, $term_list);
+    $copyright = $value;
+
+    // write returns
+    return [
+      'name' => $name,
+      'id' => $id,
+      'number_of' => 0,
+      'number_of_download' => 0,
+      'available' => $available,
+      'category' => $category,
+      'cover' => $cover,
+      'description' => $description,
+      'price' => $price,
+      'price_total' => $price,
+      'price_download' => $price_download,
+      'price_total_download' => $price_download,
+      'price_shipping' => $price_shipping,
+      'producer' => $producer,
+      'artist' => $artist,
+      'author' => $author,
+      'copyright' => $copyright,
+    ];
   }
 }
