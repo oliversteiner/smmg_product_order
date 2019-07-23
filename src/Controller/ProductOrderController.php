@@ -3,6 +3,7 @@
 namespace Drupal\smmg_product_order\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\small_messages\Utility\Email;
 use Drupal\smmg_product_order\Utility\ProductOrderTrait;
 use Exception;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -102,9 +103,10 @@ class ProductOrderController extends ControllerBase
   /**
    * @param $nid
    * @param $token
+   * @return array
    * @throws Exception
    */
-  public static function sendEmail($nid, $token): void
+  public static function sendEmail($nid, $token): array
   {
 
     // get Data Variables
@@ -114,8 +116,8 @@ class ProductOrderController extends ControllerBase
     try {
       $module = self::getModuleName();
       $templates = self::getTemplates();
-
-      // Email::sendNotificationMail($module, $variables, $templates);
+      Email::sendNotificationMail($module, $variables, $templates);
+      return [];
     } catch (Exception $e) {
     }
   }
@@ -126,7 +128,8 @@ class ProductOrderController extends ControllerBase
    * @return array | boolean
    * @throws Exception
    */
-  public static function checkTokenGetData($nid, $token){
+  public static function checkTokenGetData($nid, $token)
+  {
     // Make sure you don't trust the URL to be safe! Always check for exploits.
     if (!$nid || !is_numeric($nid)) {
 
