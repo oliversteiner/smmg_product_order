@@ -22,9 +22,7 @@ trait ProductOrderTrait
    * @return array
    * @throws Exception
    */
-  public static function productOrderVariables(
-    $product_order_nid
-  ): array
+  public static function productOrderVariables($product_order_nid): array
   {
     $products = self::getAllProductsByID();
     $config = self::getConfig();
@@ -132,16 +130,10 @@ trait ProductOrderTrait
             );
 
             // get Number of CD
-            $number_of = Helper::getFieldValue(
-              $order_item_node,
-              'number_of'
-            );
+            $number_of = Helper::getFieldValue($order_item_node, 'number_of');
 
             // Product ID
-            $product_id = Helper::getFieldValue(
-              $order_item_node,
-              'product'
-            );
+            $product_id = Helper::getFieldValue($order_item_node, 'product');
 
             // Get Product
             $product = $products[$product_id];
@@ -178,10 +170,7 @@ trait ProductOrderTrait
       $variables['order']['number_of'] = $product_order_total_number;
 
       // Discount Price
-      $discount_price = Helper::getFieldValue(
-        $order_node,
-        'discount_price'
-      );
+      $discount_price = Helper::getFieldValue($order_node, 'discount_price');
       $variables['order']['discount']['price'] = $discount_price;
 
       // Discount Number of
@@ -194,16 +183,12 @@ trait ProductOrderTrait
       // Shipping
       $shipping_total = Helper::getFieldValue(
         $order_node,
-        'product_shipping_total'
+        'shipping_price_total'
       );
       $variables['order']['shipping']['price'] = $shipping_total;
 
-
       // Total
-      $product_order_total = Helper::getFieldValue(
-        $order_node,
-        'price_total'
-      );
+      $product_order_total = Helper::getFieldValue($order_node, 'price_total');
       $variables['order']['total']['price'] = $product_order_total;
 
       // Title
@@ -217,7 +202,6 @@ trait ProductOrderTrait
 
     return $variables;
   }
-
 
   /**
    *
@@ -310,16 +294,18 @@ trait ProductOrderTrait
    * @return int
    * @throws InvalidPluginDefinitionException
    * @throws PluginNotFoundException
+   * @throws Exception
    */
   public static function newOrder(array $data): int
   {
+    $result = 0;
+
     // Token
     $token = $data['token'];
 
     // Origin
     $origin = 'product_order';
     $origin_tid = Helper::getOrigin($origin);
-
 
     //  address
     $gender = $data['gender'];
@@ -331,11 +317,10 @@ trait ProductOrderTrait
     $email = $data['email'];
     $phone = $data['phone'];
 
-
     // Title
     $config = Drupal::config('smmg_product_order.settings');
-    $product_order_name = $config->get('title');
-    $title = $product_order_name;
+    $title = $config->get('title');
+    $title .= ' - '.$last_name . ' ' . $first_name ;
 
     // New Node
     $storage = Drupal::entityTypeManager()->getStorage('node');
@@ -403,13 +388,13 @@ trait ProductOrderTrait
     try {
       $new_order->save();
       $new_order_nid = $new_order->id();
-
+      $result = $new_order_nid;
+      dpm('Order NID', $new_order_nid);
       self::sendEmail($new_order_nid, $token);
-      return $new_order_nid;
     } catch (EntityStorageException $e) {
     } catch (Exception $e) {
     }
-    return 0;
+    return $result;
   }
 
   /**
@@ -430,7 +415,6 @@ trait ProductOrderTrait
     $template_names = self::getTemplateNames();
     return Helper::getTemplates($module, $template_names);
   }
-
 
   /**
    * @return Drupal\Core\Config\ImmutableConfig
