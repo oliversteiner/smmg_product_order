@@ -202,7 +202,7 @@ trait ProductOrderTrait
       // Total
       $product_order_total = Helper::getFieldValue(
         $order_node,
-        'product_order_total'
+        'price_total'
       );
       $variables['order']['total']['price'] = $product_order_total;
 
@@ -387,13 +387,13 @@ trait ProductOrderTrait
     // Shipping
     $price_shipping_in_cent = self::calculateShipping($data, $products);
     $price_shipping = $price_shipping_in_cent / 100;
-    $new_order->get('field_product_shipping_total')->setValue($price_shipping);
+    $new_order->get('field_shipping_price_total')->setValue($price_shipping);
 
     // Total ink. Discount & Shipping
     $total_in_cent = self::getTotal($data, $products);
     $total =
       ($total_in_cent - $discount_in_cent + $price_shipping_in_cent) / 100;
-    $new_order->get('field_product_order_total')->setValue($total);
+    $new_order->get('field_price_total')->setValue($total);
 
     // Save
     try {

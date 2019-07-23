@@ -9,6 +9,7 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\small_messages\Utility\Helper;
 
@@ -22,7 +23,7 @@ function smmg_product_order_help($route_name, RouteMatchInterface $route_match)
     case 'help.page.smmg_product_order':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('product_order Module for Small Messages') . '</p>';
+      $output .= '<p>' . t('Product Order Module for Small Messages') . '</p>';
       return $output;
 
     default:
@@ -45,7 +46,7 @@ function smmg_product_order_theme()
 /**
  * Implements hook_form_alter().
  */
-function smmg_product_order_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id)
+function smmg_product_order_form_alter(&$form, FormStateInterface $form_state, $form_id)
 {
 
   // product_order Order
@@ -59,17 +60,17 @@ function smmg_product_order_form_alter(&$form, \Drupal\Core\Form\FormStateInterf
 
     // Automatic Fill Title Field
     $form['title']['#access'] = FALSE;
-    $form['#entity_builders'][] = 'custom_product_order_node_title_builder';
+    $form['#entity_builders'][] = 'product_order_title_builder';
   }
 
   // product_order Unit
   // --------------------------------------
-  if (in_array($form_id, ['node_product_order_unit_edit_form', 'node_product_order_unit_form'])) {
+  if (in_array($form_id, ['node_product_order_item_edit_form', 'node_product_order_item_form'])) {
 
 
     // Automatic Fill Title Field
     $form['title']['#access'] = FALSE;
-    $form['#entity_builders'][] = 'product_order_unit_title_builder';
+    $form['#entity_builders'][] = 'product_order_item_title_builder';
   }
 }
 
@@ -162,26 +163,24 @@ function smmg_product_order_mail($key, &$message, $params)
 }
 
 
-
-
 /**
  * Title builder for product_order content type.
  *
  * @param $entity_type
- * @param \Drupal\node\NodeInterface $node
+ * @param NodeInterface $node
  * @param $form
- * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * @param FormStateInterface $form_state
  * @throws Exception
  */
-function smmg_product_order_node_title_builder($entity_type, NodeInterface $node, $form, FormStateInterface $form_state)
+function product_order_title_builder($entity_type, NodeInterface $node, $form, FormStateInterface $form_state)
 {
-  $config = \Drupal::config('smmg_product_order.settings');
-  $product_order_name = $config->get('product_order_name_singular');
+  $config = Drupal::config('smmg_product_order.settings');
+  $product_order_name = $config->get('title');
 
   $first_name = '';
   $last_name = '';
 
-  if (!empty($node)) {
+  if ($node !== null) {
     $first_name = Helper::getFieldValue($node, 'first_name');
     $last_name = Helper::getFieldValue($node, 'last_name');
   }
@@ -195,28 +194,27 @@ function smmg_product_order_node_title_builder($entity_type, NodeInterface $node
  * Title builder for product_order content type.
  *
  * @param $entity_type
- * @param \Drupal\node\NodeInterface $node
+ * @param NodeInterface $node
  * @param $form
- * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * @param FormStateInterface $form_state
  * @throws Exception
  */
-function product_order_unit_title_builder($entity_type, NodeInterface $node, $form, FormStateInterface $form_state)
+function product_order_item_title_builder($entity_type, NodeInterface $node, $form, FormStateInterface $form_state)
 {
-  $node->setTitle('product_order Unit');
-  $amount_list = Helper::getTermsByID('product_order_amount');
+  $node->setTitle('Order Item');
 
-  $config = \Drupal::config('smmg_product_order.settings');
-  $suffix = $config->get('suffix');
 
-  $number = '';
-  $amount = '';
+  $number_of = '';
+  $product_name = '';
 
   if ($node !== null) {
-    $number = Helper::getFieldValue($node, 'product_order_number');
-    $amount = Helper::getFieldValue($node, 'product_order_amount', $amount_list);
+    $number_of = Helper::getFieldValue($node, 'number_of');
+    $product_id = Helper::getFieldValue($node, 'product');
+    $product_node = Node::load($product_id);
+    $product_name = $product_node->getTitle();
   }
 
 
 // Build Title
-  $node->setTitle($number . ' × ' . $amount . ' ' . $suffix);
+  $node->setTitle($number_of . ' × ' . $product_name . ' ');
 }
