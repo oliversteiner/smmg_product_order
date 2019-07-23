@@ -320,9 +320,6 @@ trait ProductOrderTrait
     $origin = 'product_order';
     $origin_tid = Helper::getOrigin($origin);
 
-    // Title
-    // TODO get Title from Config page
-    $title = 'Product Order';
 
     //  address
     $gender = $data['gender'];
@@ -335,6 +332,12 @@ trait ProductOrderTrait
     $phone = $data['phone'];
 
 
+    // Title
+    $config = Drupal::config('smmg_product_order.settings');
+    $product_order_name = $config->get('title');
+    $title = $product_order_name;
+
+    // New Node
     $storage = Drupal::entityTypeManager()->getStorage('node');
     $new_order = $storage->create([
       'type' => 'product_order',
