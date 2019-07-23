@@ -28,7 +28,6 @@
      *
      * */
     updateTotal: function() {
-      console.log('updateTotal');
 
       let discountPrice = 0;
       let discountNumberOff = 0;
@@ -37,7 +36,6 @@
 
       const products = this.updateProducts();
 
-      console.log('products', products);
 
       // price Total
       for (let i = 0; i < products.length; i++) {
@@ -66,7 +64,6 @@
         priceShipping: priceShipping,
       };
 
-      Drupal.behaviors.smmgProductOrderFormBehavior.Order = order;
       this.displayResults(order);
     },
 
@@ -74,7 +71,6 @@
      *
      * */
     displayResults(order) {
-      console.log('order', order);
 
       // elements
       const $priceTotal = $('.product-order-total-price-total');
@@ -147,9 +143,8 @@
 
     attach(context, settings) {
       $('#smmg-product-order-form', context)
-        .once('smmgCDOrderFormBehavior')
+        .once('smmgProductOrderFormBehavior')
         .each(() => {
-          console.log('smmgCDOrderForm');
 
           // Load Products
           const products = this.getProducts();
@@ -186,7 +181,6 @@
         shippingQueue.push(priceShipping);
       }
 
-      console.log('shippingQueue: ', shippingQueue);
 
       // get largest item in shipping queue
       const largestShippingPrice = Math.max(...shippingQueue);
