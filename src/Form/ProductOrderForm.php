@@ -116,6 +116,8 @@ class ProductOrderForm extends FormBase
       '#type' => 'fieldset',
       '#title' => 'Bestellliste',
       '#attributes' => ['class' => ['product-order-block']],
+      '#prefix' => '<div class="ost-row-1">',
+
     ];
 
     // Table Header
@@ -379,6 +381,8 @@ class ProductOrderForm extends FormBase
       '#type' => 'fieldset',
       '#title' => 'Bestellinformationen',
       '#attributes' => ['class' => ['product-order-block']],
+      '#suffix' => '</div>',
+
     ];
 
     $form['product_order']['details']['beschreibung'] = [
@@ -498,21 +502,16 @@ class ProductOrderForm extends FormBase
       '#suffix' => '</div>',
     ];
 
-    // hidden Token
-    $token = Crypt::randomBytes(20);
-    $form['token'] = [
-      '#type' => 'hidden',
-      '#value' => bin2hex($token),
-    ];
+
 
     // Submit
     // ===============================================
-    $form['actions'] = [
+    $form['product_order']['postal_address']['actions'] = [
       '#type' => 'actions',
     ];
 
     // Add a submit button that handles the submission of the form.
-    $form['actions']['save_data'] = [
+    $form['product_order']['postal_address']['save_data'] = [
       '#type' => 'submit',
       '#value' => 'Bestellung abschicken',
       '#allowed_tags' => ['style'],
@@ -520,6 +519,13 @@ class ProductOrderForm extends FormBase
       '#suffix' => '</div>',
     ];
 
+
+    // hidden Token
+    $token = Crypt::randomBytes(20);
+    $form['token'] = [
+      '#type' => 'hidden',
+      '#value' => bin2hex($token),
+    ];
     //
     return $form;
   }

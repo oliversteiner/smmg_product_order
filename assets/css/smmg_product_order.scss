@@ -135,5 +135,51 @@ $color-border: #dbdbdb;
   }
 }
 
-.product-order-info-lieferung {
+
+#smmg-product-order-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: center;
+
+  fieldset {
+    min-width: 330px;
+    align-self: flex-start;
+    margin-bottom: 20px;
+
+  }
 }
+
+.form-item-city {
+  max-width: 285px;
+}
+
+
+
+// Extra small devices (portrait phones, less than 576px)
+@media (max-width: 768px) {
+  #smmg-product-order-form fieldset {
+  }
+  .form-item-city {
+    max-width: 280px;
+  }
+}
+
+// Medium devices (tablets, 768px and up)
+@media (min-width: 768px) {
+  #smmg-product-order-form fieldset {
+    min-width: 400px;
+    border: 1px solid #e1e1e1; /* Debug */
+    margin-right: 50px;
+  }
+}
+
+// Medium devices (tablets, 768px and up)
+@media (min-width: 1200px) {
+  #smmg-product-order-form fieldset {
+    min-width: 330px;
+  }
+
+}
+
+
