@@ -1,0 +1,28 @@
+uuid: 25b9003d-7267-45b0-bb4a-ea8385e0d85e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_order_item
+    - node.type.product_order
+    - node.type.product_order_item
+id: node.product_order.field_order_item
+field_name: field_order_item
+entity_type: node
+bundle: product_order
+label: 'Order Item'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      product_order_item: product_order_item
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

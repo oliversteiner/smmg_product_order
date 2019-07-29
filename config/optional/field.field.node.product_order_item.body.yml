@@ -1,0 +1,22 @@
+uuid: 5f13eb52-8a77-4363-b7b7-a34090f4f53c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.product_order_item
+  module:
+    - text
+id: node.product_order_item.body
+field_name: body
+entity_type: node
+bundle: product_order_item
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: true
+field_type: text_with_summary

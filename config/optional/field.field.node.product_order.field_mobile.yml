@@ -1,0 +1,19 @@
+uuid: 256cce18-c7ea-4871-ae40-6cd3e672d061
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_mobile
+    - node.type.product_order
+id: node.product_order.field_mobile
+field_name: field_mobile
+entity_type: node
+bundle: product_order
+label: Mobile
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,23 @@
+uuid: 56090493-658f-4820-a107-c2e6716a7daa
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_price_total
+    - node.type.product_order
+id: node.product_order.field_price_total
+field_name: field_price_total
+entity_type: node
+bundle: product_order
+label: 'Price Total'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: CHF
+field_type: decimal

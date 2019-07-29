@@ -1,0 +1,23 @@
+uuid: bcf8a6e0-1ea8-4b89-a90b-c8cad835976d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_discount_price
+    - node.type.product_order
+id: node.product_order.field_discount_price
+field_name: field_discount_price
+entity_type: node
+bundle: product_order
+label: 'Discount price'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal
