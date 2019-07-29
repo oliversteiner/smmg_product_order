@@ -1,0 +1,10 @@
+order_title: 'test 3'
+email_from: oliver@mollo.ch
+email_to: oliver@mollo.ch
+email_test: 0
+get_path_type: included
+get_path_name: ''
+template_thank_you: ''
+template_email_html: ''
+template_email_plain: ''
+title: 'Test 4'
