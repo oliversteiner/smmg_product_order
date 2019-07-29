@@ -100,7 +100,9 @@ class ProductOrderForm extends FormBase
 
     // Produkt Node
     // ==============================================
-    $node = node::load(769);
+
+    $nid = $products[0]['id'];
+    $node = node::load($nid);
     $view = node_view($node, 'teaser');
 
     $form['product_order']['cd'] = [

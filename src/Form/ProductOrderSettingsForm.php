@@ -76,6 +76,14 @@ class ProductOrderSettingsForm extends ConfigFormBase
       '#default_value' => $config->get('title'),
     );
 
+
+    // - Title
+    $form['general']['product_id'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Product ID'),
+      '#default_value' => $config->get('product_id'),
+    );
+
     // Fieldset Email
     // -------------------------------------------------------------
     $form['email'] = [
