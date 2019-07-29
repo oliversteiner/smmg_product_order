@@ -22,7 +22,7 @@ $color-border: #dbdbdb;
 }
 
 .product-order-row span {
-  padding: 4px;
+  padding: 10px 4px;
 }
 
 // Head
@@ -169,8 +169,9 @@ $color-border: #dbdbdb;
 @media (min-width: 768px) {
   #smmg-product-order-form fieldset {
     min-width: 400px;
-    border: 1px solid #e1e1e1; /* Debug */
-    margin-right: 50px;
+    border: 1px solid #e1e1e1;
+    margin-right: 20px;
+    padding: 20px;
   }
 }
 
@@ -178,6 +179,7 @@ $color-border: #dbdbdb;
 @media (min-width: 1200px) {
   #smmg-product-order-form fieldset {
     min-width: 330px;
+    padding: 20px;
   }
 
 }

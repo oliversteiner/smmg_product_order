@@ -9,7 +9,7 @@
 }
 
 .product-order-row span {
-  padding: 4px;
+  padding: 10px 4px;
 }
 
 .product-order-header {
@@ -130,13 +130,14 @@
   #smmg-product-order-form fieldset {
     min-width: 400px;
     border: 1px solid #e1e1e1;
-    /* Debug */
-    margin-right: 50px;
+    margin-right: 20px;
+    padding: 20px;
   }
 }
 @media (min-width: 1200px) {
   #smmg-product-order-form fieldset {
     min-width: 330px;
+    padding: 20px;
   }
 }
 
