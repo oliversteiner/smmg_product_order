@@ -1,0 +1,33 @@
+uuid: 2ac75b86-5701-40b4-b285-12de467c5b5d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_smmg_accounting
+    - node.type.product_order
+    - taxonomy.vocabulary.smmg_accounting
+  content:
+    - 'taxonomy_term:smmg_accounting:7b352047-a5f7-442b-a1f8-41064533cef2'
+id: node.product_order.field_smmg_accounting
+field_name: field_smmg_accounting
+entity_type: node
+bundle: product_order
+label: Accounting
+description: ''
+required: false
+translatable: true
+default_value:
+  -
+    target_uuid: 7b352047-a5f7-442b-a1f8-41064533cef2
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      smmg_accounting: smmg_accounting
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

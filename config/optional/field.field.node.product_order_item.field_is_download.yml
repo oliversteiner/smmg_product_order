@@ -1,0 +1,23 @@
+uuid: 80c98513-de7a-457f-abd6-76eee1c67eaa
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_is_download
+    - node.type.product_order_item
+id: node.product_order_item.field_is_download
+field_name: field_is_download
+entity_type: node
+bundle: product_order_item
+label: 'Is download'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

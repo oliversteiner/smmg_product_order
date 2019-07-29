@@ -1,0 +1,23 @@
+uuid: a1ec6cc4-8d96-4daf-bda5-55a55422a566
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_price_in_cent
+    - node.type.product_order_item
+id: node.product_order_item.field_price_in_cent
+field_name: field_price_in_cent
+entity_type: node
+bundle: product_order_item
+label: 'Price in cent'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

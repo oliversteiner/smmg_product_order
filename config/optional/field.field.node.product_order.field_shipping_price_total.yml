@@ -1,0 +1,23 @@
+uuid: a4cf551c-a8ea-4e86-a751-83fe826f2469
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_shipping_price_total
+    - node.type.product_order
+id: node.product_order.field_shipping_price_total
+field_name: field_shipping_price_total
+entity_type: node
+bundle: product_order
+label: 'Shipping price total'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: CHF
+field_type: decimal

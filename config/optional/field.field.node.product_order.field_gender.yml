@@ -1,0 +1,33 @@
+uuid: 223b12cb-75cb-4512-bc3c-d153f60e7ad3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_gender
+    - node.type.product_order
+    - taxonomy.vocabulary.gender
+  content:
+    - 'taxonomy_term:gender:087faae2-23b4-4353-a91c-04590a8a56d6'
+id: node.product_order.field_gender
+field_name: field_gender
+entity_type: node
+bundle: product_order
+label: Gender
+description: ''
+required: false
+translatable: true
+default_value:
+  -
+    target_uuid: 087faae2-23b4-4353-a91c-04590a8a56d6
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      gender: gender
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference
