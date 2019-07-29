@@ -408,7 +408,7 @@ class ProductOrderForm extends FormBase
     // Fieldset Address
     $form['product_order']['postal_address'] = [
       '#type' => 'fieldset',
-      '#title' => 'Lieder- und Rechnungsadresse',
+      '#title' => 'Liefer- und Rechnungsadresse',
       '#attributes' => ['class' => ['product-order-block']],
     ];
 
