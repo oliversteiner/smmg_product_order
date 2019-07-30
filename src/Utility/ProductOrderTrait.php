@@ -389,7 +389,6 @@ trait ProductOrderTrait
       $new_order->save();
       $new_order_nid = $new_order->id();
       $result = $new_order_nid;
-      dpm('Order NID', $new_order_nid);
       self::sendEmail($new_order_nid, $token);
     } catch (EntityStorageException $e) {
     } catch (Exception $e) {
