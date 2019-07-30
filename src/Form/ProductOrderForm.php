@@ -251,10 +251,6 @@ class ProductOrderForm extends FormBase
           class="product-order-row">',
       ];
 
-      /*      $form['product_order']['item'][$i]['id-download'] = [
-        '#theme' => '',
-        '#prefix' => '<span>' . $row_nr . '</span>',
-      ];*/
 
       // ## Download Input Number and Times
       $form['product_order']['item'][$i]['number_of_download'] = [
@@ -330,7 +326,7 @@ class ProductOrderForm extends FormBase
     $form['product_order']['item']['discount'] = [
       '#theme' => '',
       '#prefix' =>
-        '<div id="product-order-row-discount" class="product-order-row-discount product-order-row" style="display: none">' .
+        '<div id="product-order-row-discount" class="product-order-row product-order-row-discount " style="display: none">' .
         '<span class="product-order-number"></span>' .
         '<span class="product-order-times"></span>' .
         '<span class="product-order-name"><span class="product-order-discount-number"></span></span>' .
@@ -343,7 +339,7 @@ class ProductOrderForm extends FormBase
     $form['product_order']['item']['shipping'] = [
       '#theme' => '',
       '#prefix' =>
-        '<div id="product-order-row-shipping" class="product-order-row-shipping product-order-row">' .
+        '<div id="product-order-row-shipping" class="product-order-row product-order-row-shipping product-order-row">' .
         '<span class="product-order-number"></span>' .
         '<span class="product-order-times"></span>' .
         '<span class="product-order-name">Versand</span>' .
@@ -356,7 +352,7 @@ class ProductOrderForm extends FormBase
     $form['product_order']['item']['total'] = [
       '#theme' => '',
       '#prefix' =>
-        '<div id="product-order-row-total" class="product-order-row-total product-order-row">' .
+        '<div id="product-order-row-total" class="product-order-row product-order-row-total product-order-row">' .
         '<span class="product-order-number"></span>' .
         '<span class="product-order-times"></span>' .
         '<span class="product-order-total-label-total product-order-name">Total</span>' .

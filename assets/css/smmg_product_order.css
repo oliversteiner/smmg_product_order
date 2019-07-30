@@ -1,11 +1,12 @@
 .product-order-block {
   border: none;
-  max-width: 350px;
 }
 
 .product-order-row {
   display: flex;
   border-bottom: 1px #d8d8d8 solid;
+  font-family: "Lato", Helvetica, sans-serif;
+  width: auto;
 }
 
 .product-order-row span {
@@ -17,11 +18,18 @@
 }
 
 .product-order-number {
-  min-width: 50px;
-  text-align: right;
+  min-width: 40px;
+  text-align: center;
+}
+.product-order-number select {
+  margin: 0;
+  padding: 0;
+  border: 1px silver solid;
+  text-align: center;
 }
 .product-order-number .form-item {
   margin: 0;
+  padding: 0;
 }
 
 .product-order-times {
@@ -32,6 +40,7 @@
 
 .product-order-name {
   min-width: 120px;
+  max-width: 300px;
   flex-grow: 1;
   text-align: left;
 }
@@ -64,6 +73,9 @@
   color: grey;
 }
 
+.product-order-info-text {
+  max-width: 400px;
+}
 .product-order-info-text h3 {
   font-weight: bold;
   margin: 1em 0 0 0;
@@ -87,6 +99,7 @@
 .form-item-city {
   flex: auto;
   padding-left: 2px;
+  max-width: 285px;
 }
 
 .product-order-receipt address {
@@ -112,23 +125,29 @@
   justify-content: center;
 }
 #smmg-product-order-form fieldset {
-  min-width: 330px;
   align-self: flex-start;
   margin-bottom: 20px;
 }
 
-.form-item-city {
-  max-width: 285px;
+.product-order-block {
+  max-width: 340px;
 }
 
 @media (max-width: 768px) {
+  .product-order-row {
+    width: auto;
+  }
+
   .form-item-city {
     max-width: 280px;
   }
 }
 @media (min-width: 768px) {
+  .product-order-row {
+    width: auto;
+  }
+
   #smmg-product-order-form fieldset {
-    min-width: 400px;
     border: 1px solid #e1e1e1;
     margin-right: 20px;
     padding: 20px;
@@ -136,8 +155,15 @@
 }
 @media (min-width: 1200px) {
   #smmg-product-order-form fieldset {
-    min-width: 330px;
     padding: 20px;
+  }
+
+  .product-order-row {
+    width: 500px;
+  }
+
+  .ost-row-1 .product-order-block {
+    max-width: 700px;
   }
 }
 
