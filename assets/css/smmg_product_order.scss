@@ -20,10 +20,12 @@ $color-border: #dbdbdb;
   border-bottom: 1px #d8d8d8 solid;
   font-family: "Lato", Helvetica, sans-serif;
   width: auto;
+  justify-items: stretch;
 }
 
 .product-order-row span {
   padding: 10px 4px;
+
 }
 
 // Head
@@ -34,8 +36,10 @@ $color-border: #dbdbdb;
 
 // Number
 .product-order-number {
-  width: 50px;
-  text-align: center;
+  min-width: 45px;
+  text-align: left;
+  margin: 0;
+  padding: 0;
 
   select {
     margin: 0;
@@ -53,21 +57,23 @@ $color-border: #dbdbdb;
 // Times
 .product-order-times {
   color: silver;
-  width: 20px;
-  text-align: center;
+  min-width: 15px;
+  text-align: left;
 }
 
 // Names
 .product-order-name {
-  min-width: 120px;
-  max-width: 300px;
+
   flex-grow: 1;
   text-align: left;
 }
 
+
+
+
 // Price
 .product-order-price {
-  min-width: 50px;
+  min-width: 41px;
   text-align: right;
   padding-right: 0;
 }

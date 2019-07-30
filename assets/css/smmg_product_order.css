@@ -7,6 +7,7 @@
   border-bottom: 1px #d8d8d8 solid;
   font-family: "Lato", Helvetica, sans-serif;
   width: auto;
+  justify-items: stretch;
 }
 
 .product-order-row span {
@@ -18,8 +19,10 @@
 }
 
 .product-order-number {
-  width: 50px;
-  text-align: center;
+  min-width: 45px;
+  text-align: left;
+  margin: 0;
+  padding: 0;
 }
 .product-order-number select {
   margin: 0;
@@ -34,19 +37,17 @@
 
 .product-order-times {
   color: silver;
-  width: 20px;
-  text-align: center;
+  min-width: 15px;
+  text-align: left;
 }
 
 .product-order-name {
-  min-width: 120px;
-  max-width: 300px;
   flex-grow: 1;
   text-align: left;
 }
 
 .product-order-price {
-  min-width: 50px;
+  min-width: 41px;
   text-align: right;
   padding-right: 0;
 }
