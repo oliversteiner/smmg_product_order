@@ -342,7 +342,7 @@ class ProductOrderForm extends FormBase
         '<div id="product-order-row-shipping" class="product-order-row product-order-row-shipping product-order-row">' .
         '<span class="product-order-number"></span>' .
         '<span class="product-order-times"></span>' .
-        '<span class="product-order-name">Versand</span>' .
+        '<span class="product-order-name">Verpackung und Versand </span>' .
         '<span class="product-order-price"></span>' .
         '<span class="product-order-total-shipping-price product-order-price">0.00</span>' .
         '</div>',
