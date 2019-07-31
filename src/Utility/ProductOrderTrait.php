@@ -545,9 +545,10 @@ trait ProductOrderTrait
       $id = $item['id'];
       $product = $products[$id];
       $price_shipping = $product['price_shipping'] * 100;
-      $price_shipping_total = $item['number_of'] * $price_shipping;
+      $price_shipping_total = $price_shipping;
       $shipping_queue[] = $price_shipping_total;
     }
+    dpm($shipping_queue);
     return max($shipping_queue);
   }
 
