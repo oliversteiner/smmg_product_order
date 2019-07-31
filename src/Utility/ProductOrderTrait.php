@@ -548,7 +548,6 @@ trait ProductOrderTrait
       $price_shipping_total = $price_shipping;
       $shipping_queue[] = $price_shipping_total;
     }
-    dpm($shipping_queue);
     return max($shipping_queue);
   }
 
