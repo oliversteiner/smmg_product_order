@@ -640,17 +640,17 @@ trait ProductOrderTrait
     $value = Helper::getFieldValue($node, $field_name, $term_list);
     $producer = $value;
 
-    // $artist
+    // artists
     $field_name = 'track_artist';
     $term_list = 'track_artist';
-    $value = Helper::getFieldValue($node, $field_name, $term_list);
-    $artist = $value;
+    $value = Helper::getFieldValue($node, $field_name, $term_list, true);
+    $artists = $value;
 
-    // author
+    // authors
     $field_name = 'track_author';
     $term_list = 'track_author';
-    $value = Helper::getFieldValue($node, $field_name, $term_list);
-    $author = $value;
+    $value = Helper::getFieldValue($node, $field_name, $term_list, true);
+    $authors = $value;
 
     // copyright
     $field_name = 'track_copyright';
@@ -674,8 +674,8 @@ trait ProductOrderTrait
       'price_total_download' => $price_download,
       'price_shipping' => $price_shipping,
       'producer' => $producer,
-      'artist' => $artist,
-      'author' => $author,
+      'artists' => $artists,
+      'authors' => $authors,
       'copyright' => $copyright,
     ];
   }
