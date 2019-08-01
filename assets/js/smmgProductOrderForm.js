@@ -146,9 +146,17 @@
         .once('smmgProductOrderFormBehavior')
         .each(() => {
 
+          // set first "number_of" to 1
+          const optionValue = '1';
+          $(`#product-order-row-0 select option`).filter(function() {
+            return $(this).text() === optionValue;
+          }).prop('selected', true);
+
+
           // Load Products
           const products = this.getProducts();
           this.updateTotal(products);
+
 
           // Check for Number Input change
           const scope = this;
