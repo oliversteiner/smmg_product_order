@@ -103,7 +103,8 @@ class ProductOrderForm extends FormBase
 
     $nid = $products[0]['id'];
     $node = node::load($nid);
-    $view = node_view($node, 'teaser');
+    $view = \Drupal::entityTypeManager()->getViewBuilder('node')->view($node,'teaser');
+    #$view = Drupal::entityTypeManager()->getViewBuilder('node')->view('teaser') ;
 
     $form['product_order']['cd'] = [
       '#theme' => '',
@@ -247,7 +248,7 @@ class ProductOrderForm extends FormBase
         '#prefix' =>
           '<div id="product-order-row-' .
           $row_nr .
-          '" 
+          '"
           class="product-order-row">',
       ];
 
@@ -319,7 +320,7 @@ class ProductOrderForm extends FormBase
 
     // Virtual Product Items to  JS
     $form['#attached']['drupalSettings']['productOrder'][
-      'products'
+    'products'
     ] = $virtual_products;
 
     // Discount
@@ -519,7 +520,7 @@ class ProductOrderForm extends FormBase
 
 
     // hidden Token
-    $token = Crypt::randomBytes(20);
+    $token = random_bytes(20);
     $form['token'] = [
       '#type' => 'hidden',
       '#value' => bin2hex($token),
